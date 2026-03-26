@@ -20,7 +20,7 @@ _Slack を手動で確認するのはやめましょう。Claude に任せてく
 
 ```bash
 # 方法 A：プラグインマーケットプレイス（推奨）
-/plugin marketplace add https://github.com/kungbi/slack-monitoring
+/plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
 
 # 方法 B：手動インストール
@@ -70,6 +70,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 | `/slack-monitoring:digest` | 週次ダイジェスト（過去 7 日間） |
 | `/slack-monitoring:setup` | 設定ウィザード |
 | `/slack-monitoring:help` | ヘルプ表示 |
+| `/slack-monitoring:status` | 設定と本日のメンション状況を表示 |
 
 ---
 

@@ -20,7 +20,7 @@ _不要手动检查 Slack。让 Claude 替你监控。_
 
 ```bash
 # 方式 A：插件市场（推荐）
-/plugin marketplace add https://github.com/kungbi/slack-monitoring
+/plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
 
 # 方式 B：手动安装
@@ -70,6 +70,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 | `/slack-monitoring:digest` | 周报（最近 7 天统计） |
 | `/slack-monitoring:setup` | 配置向导 |
 | `/slack-monitoring:help` | 显示帮助 |
+| `/slack-monitoring:status` | 显示配置和今日提及统计 |
 
 ---
 

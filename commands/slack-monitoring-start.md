@@ -1,6 +1,7 @@
 $ARGUMENTS: [interval] - Monitoring interval. e.g.: 1m, 5m, 10m, 15m(default), 30m, 1h
 
-Start Slack mention monitoring. Run the check workflow repeatedly at /loop $ARGUMENTS (default 15m) intervals.
+Start recurring Slack mention monitoring. Run the check workflow repeatedly at /loop $ARGUMENTS (default 15m) intervals.
+For a single check, use `/slack-monitoring-once` instead.
 
 ## Language & Tone
 
@@ -20,15 +21,14 @@ Use the `tone` value to style suggested replies.
 - If not found, initialize with `{"date": "YYYY-MM-DD", "threads": []}`
 
 ### 2. Search today's mentions
-Run 3 queries and merge results (deduplicate by message_ts):
-- `<@U09L7JLCRBN> on:today` — personal tagging
-- `backend_timespread on:today` — @backend_timespread group tagging (text search)
-- `team_timespread on:today` — @team_timespread group tagging (text search)
+Run queries and merge results (deduplicate by message_ts):
+- `<@{user_id}> on:today` — personal tagging (user_id from config)
+- For each entry in `config.group_mentions` (if any): `{entry} on:today` — group/keyword search
 
 Common options: sort: timestamp, desc, include_context: false
 From results:
-- Exclude messages sent by me (U09L7JLCRBN)
-- Exclude GitHub bot messages (U01UE6J1NER, U01UDJ2CFNF, etc.) to prevent code review noise
+- Exclude messages sent by me (user_id from config)
+- Exclude bot replies (messages with `bot_id` set)
 
 ### 3. Process each mention
 For each search result:
@@ -37,7 +37,7 @@ For each search result:
   - status is `pending` → **auto-complete check** (see step 4 below)
 - If new mention:
   - Read full thread via `slack_read_thread`
-  - If my (U09L7JLCRBN) reply exists in thread → add with status: `auto_completed`
+  - If my ({user_id from config}) reply exists in thread → add with status: `auto_completed`
   - If no reply from me → add with status: `pending`, include in DM targets
   - **Write summary**: Detailed summary including full thread context (background, each participant's response, current status)
   - **Write suggested_reply**: Recommend next actions I can take (suggest reply content, whether acknowledgment is sufficient, etc.)
@@ -45,7 +45,7 @@ For each search result:
 ### 4. Auto-complete check for existing pending threads
 For each existing `pending` thread:
 - Re-read the thread via `slack_read_thread`
-- If a new reply from me (U09L7JLCRBN) is found → change status to `auto_completed`
+- If a new reply from me ({user_id from config}) is found → change status to `auto_completed`
 - If only bot messages (Slackbot, etc.) exist as reminders → change to `auto_completed`
 
 ### 5. Terminal summary output

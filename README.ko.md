@@ -20,7 +20,7 @@ _Slack을 직접 확인하지 마세요. Claude가 대신 지켜봅니다._
 
 ```bash
 # 방법 A: 플러그인 마켓플레이스 (추천)
-/plugin marketplace add https://github.com/kungbi/slack-monitoring
+/plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
 
 # 방법 B: 수동 설치
@@ -70,6 +70,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 | `/slack-monitoring:digest` | 위클리 다이제스트 (최근 7일 통계) |
 | `/slack-monitoring:setup` | 설정 마법사 |
 | `/slack-monitoring:help` | 도움말 |
+| `/slack-monitoring:status` | 설정 및 오늘 멘션 현황 확인 |
 
 ---
 

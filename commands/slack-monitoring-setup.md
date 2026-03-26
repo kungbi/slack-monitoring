@@ -6,8 +6,11 @@ Proceed through each step in order. If a value is already set, show the current 
 **All selections MUST use the `AskUserQuestion` tool.**
 
 ## Step 1. Verify Slack connection
-- Search for my user ID (U09L7JLCRBN) via `slack_search_users` to verify connection status
-- Connection OK → Display: "Slack 연결됨 (신웅비 / linkareer workspace)" (ko) / "Slack connected (신웅비 / linkareer workspace)" (en)
+- Call `slack_search_users` with query `"a"` to verify connection
+- If successful, ask the user for their Slack display name via AskUserQuestion: "What is your Slack display name? (used to find your user ID)"
+- Search `slack_search_users` with the entered name, pick the matching result
+- Save the found `user_id` and `user_name` and `workspace` to config
+- Connection OK → Display: "Slack 연결됨 ({user_name} / {workspace})" (ko) / "Slack connected ({user_name} / {workspace})" (en)
 - Connection failed → Show Slack MCP server connection guide:
 
 **If language = ko:**
@@ -63,7 +66,7 @@ AskUserQuestion:
 
 Note: `engmix` tone is hidden for English users. If switching from `ko` to `en` with `tone=engmix`, fall back to `formal`.
 
-- Auto-learn selected: Search `from:<@U09L7JLCRBN> -in:dm` via `slack_search_public_and_private` for the most recent 50 messages, analyze tone patterns, and save to `tone_examples` in config (DM excluded, channel messages only)
+- Auto-learn selected: Search `from:<@{user_id}> -in:dm` via `slack_search_public_and_private` for the most recent 50 messages, analyze tone patterns, and save to `tone_examples` in config (DM excluded, channel messages only)
 
 ## Step 4. Default monitoring interval
 
@@ -103,26 +106,26 @@ Save all settings to `~/.claude/slack-monitoring/config.json` and display summar
 ```
 ✅ 설정 완료!
 
-📡 Slack 연결: ✅ 신웅비 (linkareer)
+📡 Slack 연결: ✅ {user_name} ({workspace})
 🌐 언어: 한국어
 💬 말투: 존댓말
 ⏱️ 간격: 15분
 📝 스타일: 상세
 
-변경하려면 /slack-monitoring-setup 을 다시 실행하세요.
+변경하려면 /slack-monitoring:setup 을 다시 실행하세요.
 ```
 
 **If language = en:**
 ```
 ✅ Setup complete!
 
-📡 Slack connection: ✅ 신웅비 (linkareer)
+📡 Slack connection: ✅ {user_name} ({workspace})
 🌐 Language: English
 💬 Tone: Professional
 ⏱️ Interval: 15min
 📝 Style: Detailed
 
-To change settings, run /slack-monitoring-setup again.
+To change settings, run /slack-monitoring:setup again.
 ```
 
 ## Config file format
@@ -130,9 +133,9 @@ To change settings, run /slack-monitoring-setup again.
 `~/.claude/slack-monitoring/config.json`:
 ```json
 {
-  "user_id": "U09L7JLCRBN",
-  "user_name": "신웅비",
-  "workspace": "linkareer",
+  "user_id": "UXXXXXXXXX",
+  "user_name": "Your Name",
+  "workspace": "your-workspace",
   "language": "ko",
   "tone": "formal",
   "tone_examples": [],

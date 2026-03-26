@@ -20,7 +20,7 @@ _Stop checking Slack manually. Let Claude watch it for you._
 
 ```bash
 # Option A: Plugin Marketplace (Recommended)
-/plugin marketplace add https://github.com/kungbi/slack-monitoring
+/plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
 
 # Option B: Manual
@@ -70,6 +70,7 @@ That's it. Claude watches your mentions every 15 minutes and sends you a summary
 | `/slack-monitoring:digest` | Weekly digest (last 7 days stats) |
 | `/slack-monitoring:setup` | Configuration wizard |
 | `/slack-monitoring:help` | Show help |
+| `/slack-monitoring:status` | Show config and today's mention stats |
 
 ---
 

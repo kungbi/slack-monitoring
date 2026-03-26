@@ -20,7 +20,7 @@ _Pare de verificar o Slack manualmente. Deixe o Claude vigiar para você._
 
 ```bash
 # Opção A: Plugin Marketplace (Recomendado)
-/plugin marketplace add https://github.com/kungbi/slack-monitoring
+/plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
 
 # Opção B: Instalação manual
@@ -70,6 +70,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 | `/slack-monitoring:digest` | Resumo semanal (últimos 7 dias) |
 | `/slack-monitoring:setup` | Assistente de configuração |
 | `/slack-monitoring:help` | Mostrar ajuda |
+| `/slack-monitoring:status` | Mostrar configuração e estatísticas de menções do dia |
 
 ---
 
