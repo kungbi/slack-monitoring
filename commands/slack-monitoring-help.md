@@ -1,7 +1,17 @@
-Slack 모니터링 사용법을 표시한다.
+Display Slack monitoring usage instructions.
 
-아래 내용을 그대로 사용자에게 표시:
+## Language & Tone
 
+Read `~/.claude/slack-monitoring/config.json` at the start of execution.
+Use the `language` value (`ko` or `en`) for all user-facing output below.
+Use the `tone` value to style suggested replies.
+
+- Compact i18n: "한국어 텍스트" (ko) / "English text" (en)
+- Block i18n: see `If language = ko:` / `If language = en:` sections below.
+
+Display the following content to the user:
+
+**If language = ko:**
 ```
 📡 Slack Monitoring 사용법
 
@@ -19,4 +29,24 @@ Slack 모니터링 사용법을 표시한다.
 • 스레드 전체 맥락 요약 + 추천 답변 제공
 • 내가 답장하면 자동완료 (auto_completed)
 • 날짜별 기록 보관 (~/.claude/slack-monitoring/)
+```
+
+**If language = en:**
+```
+📡 Slack Monitoring Usage
+
+/slack-monitoring              Start monitoring (default 15min interval)
+/slack-monitoring <interval>   Start with custom interval (1m, 5m, 10m, 30m, 1h, 2h, etc.)
+/slack-monitoring-list         View pending mentions list
+/slack-monitoring-complete 2   Mark thread #2 as complete
+/slack-monitoring-complete all Mark all pending as complete
+/slack-monitoring-show 3       View thread #3 details
+/slack-monitoring-setup        Initial setup (Slack connection, language, tone, interval, style)
+/slack-monitoring-help         Show this help
+
+Features:
+• Auto-detect channel @mentions + thread-level tracking
+• Full thread context summary + suggested replies
+• Auto-complete when you reply (auto_completed)
+• Daily records stored at ~/.claude/slack-monitoring/
 ```

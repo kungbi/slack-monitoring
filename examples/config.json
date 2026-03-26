@@ -2,7 +2,7 @@
   "user_id": "U01234567",
   "user_name": "Your Name",
   "workspace": "your-workspace",
-  "language": "ko",
+  "language": "en",
   "tone": "formal",
   "tone_examples": [],
   "default_interval": "15m",

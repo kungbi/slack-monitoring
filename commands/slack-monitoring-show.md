@@ -1,14 +1,24 @@
-$ARGUMENTS: <id> - 상세 보기할 스레드 ID. 예: 1, 3
+$ARGUMENTS: <id> - Thread ID to view details. e.g.: 1, 3
 
-Slack 멘션 스레드의 상세 정보를 표시한다.
+Display detailed information for a Slack mention thread.
 
-## 동작
+## Language & Tone
 
-1. `~/.claude/slack-monitoring/YYYY-MM-DD.json` (오늘 날짜) 파일을 읽는다
-2. 해당 ID의 스레드를 찾는다
-3. `slack_read_thread`로 스레드 최신 상태를 다시 읽는다
-4. 아래 포맷으로 상세 표시:
+Read `~/.claude/slack-monitoring/config.json` at the start of execution.
+Use the `language` value (`ko` or `en`) for all user-facing output below.
+Use the `tone` value to style suggested replies.
 
+- Compact i18n: "한국어 텍스트" (ko) / "English text" (en)
+- Block i18n: see `If language = ko:` / `If language = en:` sections below.
+
+## Behavior
+
+1. Read `~/.claude/slack-monitoring/YYYY-MM-DD.json` (today's date)
+2. Find the thread with the given ID
+3. Re-read the latest thread state via `slack_read_thread`
+4. Display in the following format:
+
+**If language = ko:**
 ```
 📬 #<id> — #채널명 <status>
 
@@ -28,12 +38,40 @@ Slack 멘션 스레드의 상세 정보를 표시한다.
 /slack-monitoring-complete <id>    ← 완료 처리
 ```
 
-- status가 `pending`이면 추천 답변 포함
-- status가 `completed`/`auto_completed`면 완료 시점과 방법 표시
-- 스레드에 새 답장이 추가되었으면 summary를 업데이트하고 데이터 파일에 저장
+**If language = en:**
+```
+📬 #<id> — #channel-name <status>
 
-인자가 없으면 사용법 안내:
+> From · Time · [Open thread](permalink)
+
+### Background
+Full thread context summary...
+
+### Response Summary
+| Item | Details |
+|------|---------|
+| ... | ... |
+
+### 💬 Suggested Reply
+> Suggested reply content...
+
+/slack-monitoring-complete <id>    ← Mark complete
+```
+
+- If status is `pending`, include suggested reply
+- If status is `completed`/`auto_completed`, show completion time and method
+- If new replies were added to the thread, update summary and save to data file
+
+If no argument provided, show usage hint:
+
+**If language = ko:**
 ```
 사용법: /slack-monitoring-show <id>
 💡 ID 확인: /slack-monitoring-list
+```
+
+**If language = en:**
+```
+Usage: /slack-monitoring-show <id>
+💡 Check IDs: /slack-monitoring-list
 ```

@@ -1,11 +1,21 @@
-미답변 Slack 멘션 목록을 표시한다.
+Display the list of unanswered Slack mentions.
 
-## 동작
+## Language & Tone
 
-1. `~/.claude/slack-monitoring/YYYY-MM-DD.json` (오늘 날짜) 파일을 읽는다
-2. `pending` 상태인 스레드만 필터링
-3. 사용자에게 테이블로 표시:
+Read `~/.claude/slack-monitoring/config.json` at the start of execution.
+Use the `language` value (`ko` or `en`) for all user-facing output below.
+Use the `tone` value to style suggested replies.
 
+- Compact i18n: "한국어 텍스트" (ko) / "English text" (en)
+- Block i18n: see `If language = ko:` / `If language = en:` sections below.
+
+## Behavior
+
+1. Read `~/.claude/slack-monitoring/YYYY-MM-DD.json` (today's date)
+2. Filter threads with `pending` status only
+3. Display to user as a table:
+
+**If language = ko:**
 ```
 📋 미답변 멘션 (N건)
 
@@ -19,7 +29,20 @@
 💡 전체 완료: /slack-monitoring-complete all
 ```
 
-4. pending 스레드가 없으면:
+**If language = en:**
 ```
-✅ 미답변 멘션이 없습니다!
+📋 Pending Mentions (N)
+
+| ID | Channel | From | Time | Summary |
+|----|---------|------|------|---------|
+| #1 | #timespread | 이준원 | 17:46 | API call timing response... |
+| #2 | #불편해요 | 조진수 | 13:57 | PR review request... |
+
+💡 Details: /slack-monitoring-show 1
+💡 Complete: /slack-monitoring-complete 1
+💡 Complete all: /slack-monitoring-complete all
 ```
+
+4. If no pending threads:
+
+Display: "✅ 미답변 멘션이 없습니다!" (ko) / "✅ No pending mentions!" (en)
