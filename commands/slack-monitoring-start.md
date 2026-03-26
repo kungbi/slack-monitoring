@@ -35,6 +35,11 @@ The script runs in background, prints progress to terminal, and saves PID to `~/
 
 The monitor.js script:
 - Polls Slack API every {interval} for new @mentions
-- Calls Anthropic API (Haiku) ONLY when new mentions are found — zero token cost on quiet cycles
 - Saves results to `~/.claude/slack-monitoring/YYYY-MM-DD.json`
 - Prints terminal alerts for new mentions
+
+4. When the daemon prints new mention alerts, read `~/.claude/slack-monitoring/YYYY-MM-DD.json` and present a summary to the user. **Always include the `permalink` field as a clickable link for each thread** so the user can jump directly to the Slack thread.
+
+5. **Summary model**: Read `model` from config (default: `haiku`).
+   - If `haiku` or `sonnet`: use the **Agent tool** with `model` parameter set to the configured value. Pass thread data, `language`, `tone`, and `summary_style` to the subagent for summarization.
+   - If `session`: generate the summary directly in the current session (no subagent).

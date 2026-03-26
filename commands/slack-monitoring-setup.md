@@ -129,7 +129,27 @@ AskUserQuestion: "📝 Select mention summary style"
 
 ---
 
-## Step 7. Auto-detect user groups
+## Step 7. Summary model
+
+**If selected_language = ko:**
+AskUserQuestion: "🤖 요약에 사용할 모델을 선택해주세요"
+- options:
+  1. Haiku (권장) - 빠르고 가벼움, 일반 멘션 요약에 충분
+  2. Sonnet - 더 정교한 요약, 복잡한 스레드에 적합
+  3. 현재 세션 모델 - 지금 대화 중인 모델 그대로 사용 (subagent 없음)
+
+**If selected_language = en:**
+AskUserQuestion: "🤖 Select model for summaries"
+- options:
+  1. Haiku (recommended) - Fast and lightweight, sufficient for typical mention summaries
+  2. Sonnet - More detailed summaries, better for complex threads
+  3. Current session model - Use the active session model directly (no subagent)
+
+Map: 1 → `haiku`, 2 → `sonnet`, 3 → `session`
+
+---
+
+## Step 8. Auto-detect user groups
 
 Use Bash tool:
 ```bash
@@ -191,7 +211,7 @@ Save selected handles as `group_mentions` array. If skipped: `[]`.
 
 ---
 
-## Step 8. Save & confirm
+## Step 9. Save & confirm
 
 Save all collected values to `~/.claude/slack-monitoring/config.json`:
 ```json
@@ -205,6 +225,7 @@ Save all collected values to `~/.claude/slack-monitoring/config.json`:
   "tone_examples": [],
   "default_interval": "{interval}",
   "summary_style": "{style}",
+  "model": "{model}",
   "group_mentions": {group_mentions},
   "updated_at": "{now}"
 }
@@ -219,6 +240,7 @@ Save all collected values to `~/.claude/slack-monitoring/config.json`:
 💬 말투: {tone}
 ⏱️ 간격: {interval}
 📝 스타일: {style}
+🤖 요약 모델: {model}
 👥 모니터링 그룹: {group_mentions or "없음"}
 
 변경하려면 /slack-monitoring:setup 을 다시 실행하세요.
@@ -233,6 +255,7 @@ Save all collected values to `~/.claude/slack-monitoring/config.json`:
 💬 Tone: {tone}
 ⏱️ Interval: {interval}
 📝 Style: {style}
+🤖 Summary model: {model}
 👥 Monitored groups: {group_mentions or "None"}
 
 To change settings, run /slack-monitoring:setup again.

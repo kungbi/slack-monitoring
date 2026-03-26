@@ -13,4 +13,10 @@ Run the monitor script once using the Bash tool:
 node ~/.claude/slack-monitoring/scripts/monitor.js --once
 ```
 
-The script checks for new mentions, generates summaries for any new pending mentions via Anthropic API (Haiku), saves results, and prints a terminal summary — then exits.
+The script checks for new mentions, saves results, and prints a terminal summary — then exits.
+
+When presenting the results to the user, read `~/.claude/slack-monitoring/YYYY-MM-DD.json` and **always include the `permalink` field as a clickable link for each thread** so the user can jump directly to the Slack thread.
+
+**Summary model**: Read `model` from config (default: `haiku`).
+- If `haiku` or `sonnet`: use the **Agent tool** with `model` parameter set to the configured value. Pass thread data, `language`, `tone`, and `summary_style` to the subagent for summarization.
+- If `session`: generate the summary directly in the current session (no subagent).

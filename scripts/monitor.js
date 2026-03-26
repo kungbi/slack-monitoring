@@ -110,12 +110,12 @@ function extractThreadText(messages) {
 function printSummary(newPending, autoCompleted, config) {
   const ko = config.language === 'ko';
 
+  const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+
   if (newPending.length === 0 && autoCompleted.length === 0) {
-    process.stdout.write('.');
+    process.stdout.write(ko ? `[${time}] 새 멘션 없음 ` : `[${time}] No new mentions `);
     return;
   }
-
-  const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
   console.log('');
   console.log(ko ? `🔔 새 Slack 멘션 (${time} 기준)\n` : `🔔 New Slack Mentions (as of ${time})\n`);
 
@@ -234,8 +234,8 @@ async function main() {
 
   const intervalLabel = intervalArg || config.default_interval || '15m';
   console.log(ko
-    ? `📡 Slack 모니터링 시작 (간격: ${intervalLabel})\n중지: /slack-monitoring:stop`
-    : `📡 Slack monitoring started (interval: ${intervalLabel})\nTo stop: /slack-monitoring:stop`);
+    ? `📡 Slack 모니터링 시작 (간격: ${intervalLabel})\n중지하려면 /slack-monitoring:stop 을 입력하세요.`
+    : `📡 Slack monitoring started (interval: ${intervalLabel})\nTo stop, type: /slack-monitoring:stop`);
 
   // First run immediately
   try {
