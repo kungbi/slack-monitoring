@@ -46,7 +46,6 @@ Eso es todo. Claude revisa tus menciones cada 15 minutos y te envía un resumen.
 - **Auto-completado** — ¿Ya respondiste? Marcado automáticamente como completado
 - **Resúmenes contextuales** — Contexto completo del hilo + respuestas sugeridas
 - **Notificaciones inteligentes** — Solo alerta sobre nuevas menciones. Sin ruido duplicado
-- **Filtrado de canales** — Ignora canales ruidosos, prioriza los críticos, configura remitentes VIP
 - **Resumen semanal** — Tasa de respuesta, tiempo promedio, canales y remitentes principales
 - **Personalizable** — Idioma, tono, intervalo, estilo de resumen — todo configurable
 
@@ -56,6 +55,7 @@ Eso es todo. Claude revisa tus menciones cada 15 minutos y te envía un resumen.
 
 | Comando | Función |
 |---------|---------|
+| `/slack-monitoring:once` | Verificar menciones una vez |
 | `/slack-monitoring:start` | Iniciar monitoreo (intervalo de 15m por defecto) |
 | `/slack-monitoring:start 5m` | Iniciar con intervalo personalizado |
 | `/slack-monitoring:list` | Mostrar menciones pendientes |
@@ -77,15 +77,13 @@ Cada ciclo de verificación:
 
   ┌─────────────────────────────────────────────────┐
   │  1. Buscar @menciones de hoy en Slack           │
-  │  2. Aplicar filtros de canal (ignorar/priorizar)│
-  │  3. Para cada nueva mención:                    │
+  │  2. Para cada nueva mención:                    │
   │     → Leer hilo completo                        │
   │     → ¿Ya respondió? → auto_completed           │
   │     → ¿Sin respuesta? → pending + alerta        │
-  │     → ¿VIP/canal prioritario? → marcado 🔴      │
-  │  4. Re-verificar hilos pending existentes       │
+  │  3. Re-verificar hilos pending existentes       │
   │     → ¿Respuesta encontrada? → auto_completed   │
-  │  5. Guardar registro diario                     │
+  │  4. Guardar registro diario                     │
   └─────────────────────────────────────────────────┘
 ```
 
@@ -104,7 +102,7 @@ Cada ciclo de verificación:
 Ejecuta `/slack-monitoring:digest` para un resumen de 7 días:
 
 ```
-📊 Weekly Digest (03/18 ~ 03/24)
+📊 Resumen Semanal (03/18 ~ 03/24)
 
 📈 Resumen
 - Total menciones: 28
@@ -116,6 +114,18 @@ Ejecuta `/slack-monitoring:digest` para un resumen de 7 días:
 - Promedio: 1h 23m
 - Más rápido: 5m (#incidents)
 - Más lento: 6h (#general)
+
+📢 Por canal (más menciones primero)
+| Canal      | Menciones | Respuesta |
+|-----------|-----------|-----------|
+| #dev      | 12        | 92%       |
+| #general  | 8         | 100%      |
+
+👥 Por remitente (más menciones primero)
+| Remitente  | Menciones | Respuesta |
+|-----------|-----------|-----------|
+| Juan       | 7         | 100%      |
+| María      | 5         | 80%       |
 ```
 
 ---
@@ -131,9 +141,29 @@ Ejecuta `/slack-monitoring:setup` para configurar:
 | **Tono** | Formal, Casual, Aprender de tus mensajes | Formal |
 | **Intervalo** | 1m, 5m, 10m, 15m, 30m, 1h, personalizado | 15m |
 | **Estilo de resumen** | Breve, Detallado, Contexto completo | Detallado |
-| **Canales ignorados** | Canales a omitir | Ninguno |
-| **Canales prioritarios** | Canales mostrados primero | Ninguno |
-| **Remitentes VIP** | Personas siempre con alta prioridad | Ninguno |
+| **Modelo de resumen** | Haiku, Sonnet, Sesión actual | Haiku |
+
+<details>
+<summary>Formato del archivo de configuración</summary>
+
+`~/.claude/slack-monitoring/config.json`:
+
+```json
+{
+  "user_id": "U01234567",
+  "user_name": "Juan",
+  "workspace": "mi-workspace",
+  "language": "es",
+  "tone": "formal",
+  "tone_examples": [],
+  "default_interval": "15m",
+  "summary_style": "detailed",
+  "model": "haiku",
+  "updated_at": "2026-03-24T11:00:00"
+}
+```
+
+</details>
 
 ---
 

@@ -46,9 +46,7 @@ That's it. Claude watches your mentions every 15 minutes and sends you a summary
 - **Auto-complete** — Already replied? Automatically marked as done
 - **Context summaries** — Full thread context + suggested replies, not just "someone mentioned you"
 - **Smart notifications** — Only alerts on new mentions. No duplicate noise
-- **Channel filtering** — Ignore noisy channels, prioritize critical ones, set VIP senders
-- **Weekly digest** — Response rate, avg response time, top channels & senders
-- **Customizable** — Language, tone, interval, summary style — all configurable
+- **Customizable** — Language, tone, interval, summary style, model — all configurable
 
 ---
 
@@ -56,6 +54,7 @@ That's it. Claude watches your mentions every 15 minutes and sends you a summary
 
 | Command | What it does |
 |---------|-------------|
+| `/slack-monitoring:once` | Check mentions once |
 | `/slack-monitoring:start` | Start monitoring (default 15m interval) |
 | `/slack-monitoring:start 5m` | Start with custom interval |
 | `/slack-monitoring:list` | Show pending (unanswered) mentions |
@@ -77,15 +76,13 @@ Every check cycle:
 
   ┌─────────────────────────────────────────────────┐
   │  1. Search Slack for @mentions today            │
-  │  2. Filter by channel rules (ignore/priority)   │
-  │  3. For each new mention:                       │
+  │  2. For each new mention:                       │
   │     → Read full thread                          │
   │     → Already replied? → auto_completed         │
   │     → Not replied? → pending + alert            │
-  │     → VIP/priority channel? → tagged as 🔴      │
-  │  4. Re-check existing pending threads           │
+  │  3. Re-check existing pending threads           │
   │     → Reply found? → auto_completed             │
-  │  5. Save daily record                           │
+  │  4. Save daily record                           │
   └─────────────────────────────────────────────────┘
 ```
 
@@ -97,28 +94,16 @@ Every check cycle:
 | `auto_completed` | You replied in the thread — auto-resolved |
 | `completed` | Manually marked done via `complete` command |
 
-### Priority
-
-| Priority | Trigger |
-|----------|---------|
-| 🔴 `high` | Mention from VIP sender or priority channel |
-| — `normal` | Everything else |
-
 ### Alert Format
 
 ```
 🔔 New Slack Mentions (14:30)
 
-🚨 Priority
-#incidents
-- [#1] @CTO: Deployment rollback needed... [link]
-
 #general
-- [#2] @colleague: API question... [link]
+- [#1] @colleague: API question... (link)
 
 ✅ Auto-completed (2) - already replied
----
-⏳ Pending (1) - /slack-monitoring list to check
+⏳ Pending (1) - /slack-monitoring:list to check
 ```
 
 ---
@@ -167,9 +152,7 @@ Run `/slack-monitoring:setup` to configure:
 | **Tone** | Formal, Casual, Auto-learn from your messages | Formal |
 | **Interval** | 1m, 5m, 10m, 15m, 30m, 1h, custom | 15m |
 | **Summary style** | Brief, Detailed, Full context | Detailed |
-| **Ignore channels** | Channels to skip (e.g. #random, #fun) | None |
-| **Priority channels** | Channels shown first (e.g. #incidents) | None |
-| **VIP senders** | People always marked high priority | None |
+| **Summary model** | Haiku, Sonnet, Current session | Haiku |
 
 <details>
 <summary>Config file format</summary>
@@ -186,17 +169,7 @@ Run `/slack-monitoring:setup` to configure:
   "tone_examples": [],
   "default_interval": "15m",
   "summary_style": "detailed",
-  "channels": {
-    "ignore_channels": [
-      { "id": "C01234567", "name": "#random" }
-    ],
-    "priority_channels": [
-      { "id": "C07654321", "name": "#incidents" }
-    ],
-    "vip_senders": [
-      { "id": "U09876543", "name": "CTO" }
-    ]
-  },
+  "model": "haiku",
   "updated_at": "2026-03-24T11:00:00"
 }
 ```
