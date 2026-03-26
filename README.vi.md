@@ -146,9 +146,22 @@ Chạy `/slack-monitoring:setup` để cấu hình:
 | Yêu cầu | Mô tả |
 |----------|-------|
 | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | Công cụ CLI (cần phiên hoạt động) |
-| [Slack MCP Server](https://modelcontextprotocol.io/integrations/slack) | Tích hợp Slack cho Claude Code |
+| Slack User Token | Token `xoxp-` với các phạm vi cần thiết (trình hướng dẫn cài đặt sẽ hướng dẫn) |
 
-> **Lưu ý:** Giám sát chỉ hoạt động khi phiên Claude Code đang hoạt động.
+### Các phạm vi token Slack cần thiết
+
+| Phạm vi | Mục đích |
+|---------|----------|
+| `search:read` | Tìm kiếm @đề cập |
+| `channels:history` | Đọc thread kênh công khai |
+| `groups:history` | Đọc thread kênh riêng tư |
+| `im:history` | Đọc thread tin nhắn trực tiếp |
+| `usergroups:read` | Tự động phát hiện nhóm Slack của bạn |
+| `users:read` | Xác định hồ sơ người dùng của bạn |
+
+> **Cách lấy token:** Tạo ứng dụng Slack tại [api.slack.com/apps](https://api.slack.com/apps), thêm các phạm vi trên vào **OAuth & Permissions → User Token Scopes**, cài đặt vào workspace của bạn và sao chép **User OAuth Token** (bắt đầu bằng `xoxp-`). Chạy `/slack-monitoring:setup` và dán vào khi được nhắc.
+
+> **Lưu ý:** Giám sát chỉ hoạt động khi phiên Claude Code đang hoạt động. Khi phiên kết thúc, giám sát cũng dừng lại.
 
 ---
 

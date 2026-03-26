@@ -21,14 +21,35 @@ Use the `tone` value to style suggested replies.
 - If not found, initialize with `{"date": "YYYY-MM-DD", "threads": []}`
 
 ### 2. Search today's mentions
-Run queries and merge results (deduplicate by message_ts):
-- `<@{user_id}> on:today` — personal tagging (user_id from config)
-- For each entry in `config.group_mentions` (if any): `{entry} on:today` — group/keyword search
 
-Common options: sort: timestamp, desc, include_context: false
+Read `slack_token`, `user_id`, and `group_mentions` from `~/.claude/slack-monitoring/config.json`.
+
+Use the Bash tool to search personal mentions:
+```bash
+curl -s -H "Authorization: Bearer {slack_token}" \
+  "https://slack.com/api/search.messages?query=%3C%40{user_id}%3E+on%3Atoday&sort=timestamp&sort_dir=desc&count=100"
+```
+
+For each entry in `config.group_mentions` (if any), also run:
+```bash
+curl -s -H "Authorization: Bearer {slack_token}" \
+  "https://slack.com/api/search.messages?query={group_mention}+on%3Atoday&sort=timestamp&sort_dir=desc&count=100"
+```
+
+Merge all results, deduplicate by `ts` field.
+The response JSON contains `messages.matches` array. Each match has:
+- `channel.id` — channel ID
+- `channel.name` — channel name
+- `ts` — message timestamp (use as `message_ts`)
+- `text` — message text
+- `username` — sender display name
+- `user` — sender user ID
+- `permalink` — message link
+- `previous.thread_ts` — thread timestamp if in a thread (use `ts` itself if not in a thread)
+
 From results:
-- Exclude messages sent by me (user_id from config)
-- Exclude bot replies (messages with `bot_id` set)
+- Exclude messages where `user` matches `{user_id}` (sent by me)
+- Exclude messages where `bot_id` field is set (bot messages)
 
 ### 3. Process each mention
 For each search result:
@@ -36,16 +57,25 @@ For each search result:
   - status is `completed` or `auto_completed` → skip
   - status is `pending` → **auto-complete check** (see step 4 below)
 - If new mention:
-  - Read full thread via `slack_read_thread`
-  - If my ({user_id from config}) reply exists in thread → add with status: `auto_completed`
+  - Read full thread using the Bash tool:
+    ```bash
+    curl -s -H "Authorization: Bearer {slack_token}" \
+      "https://slack.com/api/conversations.replies?channel={channel_id}&ts={thread_ts}"
+    ```
+    The response JSON contains a `messages` array. Each message has `user`, `text`, `ts`, `bot_id` fields.
+  - Check if my reply exists: look for any message in `messages` array where `user == {user_id}` (skip the first message if it is the original mention)
+  - If my reply exists in thread → add with status: `auto_completed`
   - If no reply from me → add with status: `pending`, include in DM targets
   - **Write summary**: Detailed summary including full thread context (background, each participant's response, current status)
   - **Write suggested_reply**: Recommend next actions I can take (suggest reply content, whether acknowledgment is sufficient, etc.)
 
 ### 4. Auto-complete check for existing pending threads
-For each existing `pending` thread:
-- Re-read the thread via `slack_read_thread`
-- If a new reply from me ({user_id from config}) is found → change status to `auto_completed`
+For each existing `pending` thread, re-read the thread using the Bash tool:
+```bash
+curl -s -H "Authorization: Bearer {slack_token}" \
+  "https://slack.com/api/conversations.replies?channel={channel_id}&ts={thread_ts}"
+```
+- If a new reply from me (`user == {user_id}`) is found → change status to `auto_completed`
 - If only bot messages (Slackbot, etc.) exist as reminders → change to `auto_completed`
 
 ### 5. Terminal summary output

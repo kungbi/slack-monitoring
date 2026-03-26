@@ -152,7 +152,20 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 | 要件 | 説明 |
 |------|------|
 | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | CLI ツール（アクティブセッション必要） |
-| [Slack MCP Server](https://modelcontextprotocol.io/integrations/slack) | Claude Code 用 Slack 連携 |
+| Slack ユーザートークン | `xoxp-` トークン（必要なスコープ含む、設定ウィザードが案内） |
+
+### 必要な Slack トークンスコープ
+
+| スコープ | 目的 |
+|---------|------|
+| `search:read` | 今日の@メンション検索 |
+| `channels:history` | パブリックチャンネルのスレッド読み取り |
+| `groups:history` | プライベートチャンネルのスレッド読み取り |
+| `im:history` | DMスレッド読み取り |
+| `usergroups:read` | 所属グループの自動検出 |
+| `users:read` | ユーザープロフィール確認 |
+
+> **トークンの取得方法：** [api.slack.com/apps](https://api.slack.com/apps) で Slack アプリを作成し、**OAuth & Permissions → User Token Scopes** に上記のスコープを追加してワークスペースにインストールしてください。**User OAuth Token**（`xoxp-` で始まる）をコピーして、`/slack-monitoring:setup` 実行時に貼り付けてください。
 
 > **注意：** Claude Code セッションがアクティブな間のみ監視が動作します。セッション終了時に監視も停止します。
 

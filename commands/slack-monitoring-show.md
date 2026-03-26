@@ -15,7 +15,14 @@ Use the `tone` value to style suggested replies.
 
 1. Read `~/.claude/slack-monitoring/YYYY-MM-DD.json` (today's date)
 2. Find the thread with the given ID
-3. Re-read the latest thread state via `slack_read_thread`
+3. Re-read the latest thread state using the Bash tool:
+   - Read `slack_token` from `~/.claude/slack-monitoring/config.json`
+   - Use `channel_id` and `thread_ts` fields from the thread record
+   ```bash
+   curl -s -H "Authorization: Bearer {slack_token}" \
+     "https://slack.com/api/conversations.replies?channel={channel_id}&ts={thread_ts}"
+   ```
+   The response `messages` array contains all messages in the thread. Use this to get the latest thread content for the summary and check if new replies were added since last seen.
 4. Display in the following format:
 
 **If language = ko:**

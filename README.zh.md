@@ -152,7 +152,20 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 | 要求 | 说明 |
 |------|------|
 | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | CLI 工具（需要活跃会话） |
-| [Slack MCP Server](https://modelcontextprotocol.io/integrations/slack) | Claude Code 的 Slack 集成 |
+| Slack 用户令牌 | 带有必要权限范围的 `xoxp-` 令牌（设置向导将引导您） |
+
+### 所需 Slack 令牌权限范围
+
+| 权限范围 | 用途 |
+|---------|------|
+| `search:read` | 搜索 @提及 |
+| `channels:history` | 读取公开频道线程 |
+| `groups:history` | 读取私有频道线程 |
+| `im:history` | 读取私信线程 |
+| `usergroups:read` | 自动检测您的 Slack 群组 |
+| `users:read` | 识别您的用户资料 |
+
+> **如何获取令牌：** 在 [api.slack.com/apps](https://api.slack.com/apps) 创建 Slack 应用，在 **OAuth & Permissions → User Token Scopes** 下添加上述权限范围，安装到您的工作区，然后复制 **User OAuth Token**（以 `xoxp-` 开头）。运行 `/slack-monitoring:setup` 并在提示时粘贴。
 
 > **注意：** 监控仅在 Claude Code 会话活跃时运行。会话结束时，监控停止。
 

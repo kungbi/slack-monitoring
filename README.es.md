@@ -146,9 +146,22 @@ Ejecuta `/slack-monitoring:setup` para configurar:
 | Requisito | Descripción |
 |-----------|-------------|
 | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | Herramienta CLI (sesión activa requerida) |
-| [Slack MCP Server](https://modelcontextprotocol.io/integrations/slack) | Integración de Slack para Claude Code |
+| Token de usuario de Slack | Token `xoxp-` con los scopes requeridos (el asistente de configuración te guía) |
 
-> **Nota:** El monitoreo solo funciona mientras tu sesión de Claude Code esté activa.
+### Scopes requeridos del token de Slack
+
+| Scope | Propósito |
+|-------|-----------|
+| `search:read` | Buscar @menciones |
+| `channels:history` | Leer hilos de canales públicos |
+| `groups:history` | Leer hilos de canales privados |
+| `im:history` | Leer hilos de mensajes directos |
+| `usergroups:read` | Detectar automáticamente tus grupos de Slack |
+| `users:read` | Identificar tu perfil de usuario |
+
+> **Cómo obtener un token:** Crea una app de Slack en [api.slack.com/apps](https://api.slack.com/apps), agrega los scopes anteriores en **OAuth & Permissions → User Token Scopes**, instálala en tu workspace y copia el **User OAuth Token** (comienza con `xoxp-`). Ejecuta `/slack-monitoring:setup` y pégalo cuando se te solicite.
+
+> **Nota:** El monitoreo solo funciona mientras tu sesión de Claude Code esté activa. Cuando la sesión termina, el monitoreo también se detiene.
 
 ---
 

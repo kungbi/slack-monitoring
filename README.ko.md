@@ -277,9 +277,22 @@ rm -rf ~/.claude/slack-monitoring  # 선택: 데이터도 삭제
 | 요구사항 | 설명 |
 |---------|------|
 | [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | CLI 도구 (활성 세션 필요) |
-| [Slack MCP Server](https://modelcontextprotocol.io/integrations/slack) | Claude Code용 Slack 연동 |
+| Slack User Token | `xoxp-` 토큰 (필요한 스코프 포함, 설정 마법사가 안내) |
 
-> **참고:** Claude Code 세션이 활성 상태일 때만 모니터링이 동작합니다. 세션 종료 시 모니터링도 중단됩니다.
+### 필요한 Slack 토큰 스코프
+
+| 스코프 | 목적 |
+|--------|------|
+| `search:read` | 오늘의 @멘션 검색 |
+| `channels:history` | 공개 채널 스레드 읽기 |
+| `groups:history` | 비공개 채널 스레드 읽기 |
+| `im:history` | DM 스레드 읽기 |
+| `usergroups:read` | 내 Slack 그룹 자동 감지 |
+| `users:read` | 내 프로필 확인 |
+
+> **토큰 발급 방법:** Slack 앱을 [api.slack.com/apps](https://api.slack.com/apps)에서 생성하고, **OAuth & Permissions → User Token Scopes**에 위 스코프를 추가한 후 워크스페이스에 설치하세요. **User OAuth Token** (`xoxp-`로 시작)을 복사해 `/slack-monitoring:setup` 실행 시 붙여넣으세요.
+
+> **참고:** 모니터링은 Claude Code 세션이 활성화된 동안만 실행됩니다. 세션이 종료되면 모니터링도 중단됩니다.
 
 ---
 
