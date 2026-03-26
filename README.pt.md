@@ -31,13 +31,13 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 **Passo 2: Configurar**
 
 ```
-/slack-monitoring setup
+/slack-monitoring:setup
 ```
 
 **Passo 3: Iniciar monitoramento**
 
 ```
-/slack-monitoring
+/slack-monitoring:start
 ```
 
 É isso. O Claude verifica suas menções a cada 15 minutos e envia um resumo.
@@ -61,14 +61,15 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 
 | Comando | Função |
 |---------|--------|
-| `/slack-monitoring` | Iniciar monitoramento (intervalo padrão 15m) |
-| `/slack-monitoring 5m` | Iniciar com intervalo personalizado |
-| `/slack-monitoring list` | Mostrar menções pendentes |
-| `/slack-monitoring complete 2` | Marcar menção #2 como concluída |
-| `/slack-monitoring complete all` | Marcar todas as pendentes como concluídas |
-| `/slack-monitoring digest` | Resumo semanal (últimos 7 dias) |
-| `/slack-monitoring setup` | Assistente de configuração |
-| `/slack-monitoring help` | Mostrar ajuda |
+| `/slack-monitoring:start` | Iniciar monitoramento (intervalo padrão 15m) |
+| `/slack-monitoring:start 5m` | Iniciar com intervalo personalizado |
+| `/slack-monitoring:list` | Mostrar menções pendentes |
+| `/slack-monitoring:show 1` | Ver detalhes da menção #1 (resumo, resposta sugerida) |
+| `/slack-monitoring:complete 2` | Marcar menção #2 como concluída |
+| `/slack-monitoring:complete all` | Marcar todas as pendentes como concluídas |
+| `/slack-monitoring:digest` | Resumo semanal (últimos 7 dias) |
+| `/slack-monitoring:setup` | Assistente de configuração |
+| `/slack-monitoring:help` | Mostrar ajuda |
 
 ---
 
@@ -103,7 +104,7 @@ A cada ciclo de verificação:
 
 ## Resumo Semanal
 
-Execute `/slack-monitoring digest` para um resumo de 7 dias:
+Execute `/slack-monitoring:digest` para um resumo de 7 dias:
 
 ```
 📊 Weekly Digest (03/18 ~ 03/24)
@@ -124,7 +125,7 @@ Execute `/slack-monitoring digest` para um resumo de 7 dias:
 
 ## Configuração
 
-Execute `/slack-monitoring setup` para configurar:
+Execute `/slack-monitoring:setup` para configurar:
 
 | Configuração | Opções | Padrão |
 |-------------|--------|--------|

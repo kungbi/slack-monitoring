@@ -31,13 +31,13 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 **第二步：设置**
 
 ```
-/slack-monitoring setup
+/slack-monitoring:setup
 ```
 
 **第三步：开始监控**
 
 ```
-/slack-monitoring
+/slack-monitoring:start
 ```
 
 就这样。Claude 每 15 分钟检查一次你的提及并发送摘要。
@@ -61,14 +61,15 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 
 | 命令 | 功能 |
 |------|------|
-| `/slack-monitoring` | 开始监控（默认 15 分钟间隔） |
-| `/slack-monitoring 5m` | 自定义间隔启动 |
-| `/slack-monitoring list` | 显示待处理（未回复）提及 |
-| `/slack-monitoring complete 2` | 将提及 #2 标记为完成 |
-| `/slack-monitoring complete all` | 批量标记所有待处理为完成 |
-| `/slack-monitoring digest` | 周报（最近 7 天统计） |
-| `/slack-monitoring setup` | 配置向导 |
-| `/slack-monitoring help` | 显示帮助 |
+| `/slack-monitoring:start` | 开始监控（默认 15 分钟间隔） |
+| `/slack-monitoring:start 5m` | 自定义间隔启动 |
+| `/slack-monitoring:list` | 显示待处理（未回复）提及 |
+| `/slack-monitoring:show 1` | 查看提及 #1 详情（摘要、建议回复） |
+| `/slack-monitoring:complete 2` | 将提及 #2 标记为完成 |
+| `/slack-monitoring:complete all` | 批量标记所有待处理为完成 |
+| `/slack-monitoring:digest` | 周报（最近 7 天统计） |
+| `/slack-monitoring:setup` | 配置向导 |
+| `/slack-monitoring:help` | 显示帮助 |
 
 ---
 
@@ -103,7 +104,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 
 ## 周报
 
-运行 `/slack-monitoring digest` 查看 7 天摘要：
+运行 `/slack-monitoring:digest` 查看 7 天摘要：
 
 ```
 📊 Weekly Digest (03/18 ~ 03/24)
@@ -130,7 +131,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 
 ## 配置
 
-运行 `/slack-monitoring setup` 进行配置：
+运行 `/slack-monitoring:setup` 进行配置：
 
 | 设置项 | 选项 | 默认值 |
 |--------|------|--------|

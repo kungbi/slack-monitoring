@@ -31,7 +31,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 **Step 2: 초기 설정**
 
 ```
-/slack-monitoring setup
+/slack-monitoring:setup
 ```
 
 **Step 3: 모니터링 시작**
@@ -61,14 +61,15 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 
 | 명령어 | 설명 |
 |--------|------|
-| `/slack-monitoring` | 모니터링 시작 (기본 15분 간격) |
-| `/slack-monitoring 5m` | 커스텀 간격으로 시작 |
-| `/slack-monitoring list` | 미답변 멘션 목록 |
-| `/slack-monitoring complete 2` | #2 멘션 완료 처리 |
-| `/slack-monitoring complete all` | 전체 미답변 일괄 완료 |
-| `/slack-monitoring digest` | 위클리 다이제스트 (최근 7일 통계) |
-| `/slack-monitoring setup` | 설정 마법사 |
-| `/slack-monitoring help` | 도움말 |
+| `/slack-monitoring:start` | 모니터링 시작 (기본 15분 간격) |
+| `/slack-monitoring:start 5m` | 커스텀 간격으로 시작 |
+| `/slack-monitoring:list` | 미답변 멘션 목록 |
+| `/slack-monitoring:show 1` | #1 멘션 상세 보기 (요약, 추천 답변) |
+| `/slack-monitoring:complete 2` | #2 멘션 완료 처리 |
+| `/slack-monitoring:complete all` | 전체 미답변 일괄 완료 |
+| `/slack-monitoring:digest` | 위클리 다이제스트 (최근 7일 통계) |
+| `/slack-monitoring:setup` | 설정 마법사 |
+| `/slack-monitoring:help` | 도움말 |
 
 ---
 
@@ -120,14 +121,14 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 
 ✅ 자동완료 (2건) - 이미 답장됨
 ---
-⏳ 미답변 (1건) - /slack-monitoring list 로 확인
+⏳ 미답변 (1건) - /slack-monitoring:list 로 확인
 ```
 
 ---
 
 ## 위클리 다이제스트
 
-`/slack-monitoring digest`로 최근 7일 요약:
+`/slack-monitoring:digest`로 최근 7일 요약:
 
 ```
 📊 Weekly Digest (03/18 ~ 03/24)
@@ -160,7 +161,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 
 ## 설정
 
-`/slack-monitoring setup`으로 설정:
+`/slack-monitoring:setup`으로 설정:
 
 | 항목 | 옵션 | 기본값 |
 |------|------|--------|

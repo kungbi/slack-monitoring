@@ -16,6 +16,5 @@
     "mentions",
     "notifications"
   ],
-  "skills": "./skill/",
-  "commands": "./command/"
+  "skills": "./skills/"
 }

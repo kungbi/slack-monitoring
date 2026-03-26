@@ -31,13 +31,13 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 **Step 2: Setup**
 
 ```
-/slack-monitoring setup
+/slack-monitoring:setup
 ```
 
 **Step 3: Start monitoring**
 
 ```
-/slack-monitoring
+/slack-monitoring:start
 ```
 
 That's it. Claude watches your mentions every 15 minutes and sends you a summary.
@@ -61,14 +61,15 @@ That's it. Claude watches your mentions every 15 minutes and sends you a summary
 
 | Command | What it does |
 |---------|-------------|
-| `/slack-monitoring` | Start monitoring (default 15m interval) |
-| `/slack-monitoring 5m` | Start with custom interval |
-| `/slack-monitoring list` | Show pending (unanswered) mentions |
-| `/slack-monitoring complete 2` | Mark mention #2 as done |
-| `/slack-monitoring complete all` | Mark all pending as done |
-| `/slack-monitoring digest` | Weekly digest (last 7 days stats) |
-| `/slack-monitoring setup` | Configuration wizard |
-| `/slack-monitoring help` | Show help |
+| `/slack-monitoring:start` | Start monitoring (default 15m interval) |
+| `/slack-monitoring:start 5m` | Start with custom interval |
+| `/slack-monitoring:list` | Show pending (unanswered) mentions |
+| `/slack-monitoring:show 1` | View mention #1 details (summary, suggested reply) |
+| `/slack-monitoring:complete 2` | Mark mention #2 as done |
+| `/slack-monitoring:complete all` | Mark all pending as done |
+| `/slack-monitoring:digest` | Weekly digest (last 7 days stats) |
+| `/slack-monitoring:setup` | Configuration wizard |
+| `/slack-monitoring:help` | Show help |
 
 ---
 
@@ -127,7 +128,7 @@ Every check cycle:
 
 ## Weekly Digest
 
-Run `/slack-monitoring digest` for a 7-day summary:
+Run `/slack-monitoring:digest` for a 7-day summary:
 
 ```
 📊 Weekly Digest (03/18 ~ 03/24)
@@ -160,7 +161,7 @@ Run `/slack-monitoring digest` for a 7-day summary:
 
 ## Configuration
 
-Run `/slack-monitoring setup` to configure:
+Run `/slack-monitoring:setup` to configure:
 
 | Setting | Options | Default |
 |---------|---------|---------|

@@ -31,13 +31,13 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 **ステップ 2：セットアップ**
 
 ```
-/slack-monitoring setup
+/slack-monitoring:setup
 ```
 
 **ステップ 3：監視開始**
 
 ```
-/slack-monitoring
+/slack-monitoring:start
 ```
 
 以上です。Claude が 15 分ごとにメンションを確認し、サマリーを送信します。
@@ -61,14 +61,15 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 
 | コマンド | 機能 |
 |----------|------|
-| `/slack-monitoring` | 監視開始（デフォルト 15 分間隔） |
-| `/slack-monitoring 5m` | カスタム間隔で開始 |
-| `/slack-monitoring list` | 未返信メンション一覧 |
-| `/slack-monitoring complete 2` | メンション #2 を完了 |
-| `/slack-monitoring complete all` | 全未返信を一括完了 |
-| `/slack-monitoring digest` | 週次ダイジェスト（過去 7 日間） |
-| `/slack-monitoring setup` | 設定ウィザード |
-| `/slack-monitoring help` | ヘルプ表示 |
+| `/slack-monitoring:start` | 監視開始（デフォルト 15 分間隔） |
+| `/slack-monitoring:start 5m` | カスタム間隔で開始 |
+| `/slack-monitoring:list` | 未返信メンション一覧 |
+| `/slack-monitoring:show 1` | メンション #1 の詳細表示（要約、返信提案） |
+| `/slack-monitoring:complete 2` | メンション #2 を完了 |
+| `/slack-monitoring:complete all` | 全未返信を一括完了 |
+| `/slack-monitoring:digest` | 週次ダイジェスト（過去 7 日間） |
+| `/slack-monitoring:setup` | 設定ウィザード |
+| `/slack-monitoring:help` | ヘルプ表示 |
 
 ---
 
@@ -103,7 +104,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 
 ## 週次ダイジェスト
 
-`/slack-monitoring digest` で 7 日間のサマリー：
+`/slack-monitoring:digest` で 7 日間のサマリー：
 
 ```
 📊 Weekly Digest (03/18 ~ 03/24)
@@ -130,7 +131,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 
 ## 設定
 
-`/slack-monitoring setup` で設定：
+`/slack-monitoring:setup` で設定：
 
 | 設定項目 | オプション | デフォルト |
 |---------|----------|----------|

@@ -31,13 +31,13 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 **Paso 2: Configurar**
 
 ```
-/slack-monitoring setup
+/slack-monitoring:setup
 ```
 
 **Paso 3: Iniciar monitoreo**
 
 ```
-/slack-monitoring
+/slack-monitoring:start
 ```
 
 Eso es todo. Claude revisa tus menciones cada 15 minutos y te envía un resumen.
@@ -61,14 +61,15 @@ Eso es todo. Claude revisa tus menciones cada 15 minutos y te envía un resumen.
 
 | Comando | Función |
 |---------|---------|
-| `/slack-monitoring` | Iniciar monitoreo (intervalo de 15m por defecto) |
-| `/slack-monitoring 5m` | Iniciar con intervalo personalizado |
-| `/slack-monitoring list` | Mostrar menciones pendientes |
-| `/slack-monitoring complete 2` | Marcar mención #2 como completada |
-| `/slack-monitoring complete all` | Marcar todas las pendientes como completadas |
-| `/slack-monitoring digest` | Resumen semanal (últimos 7 días) |
-| `/slack-monitoring setup` | Asistente de configuración |
-| `/slack-monitoring help` | Mostrar ayuda |
+| `/slack-monitoring:start` | Iniciar monitoreo (intervalo de 15m por defecto) |
+| `/slack-monitoring:start 5m` | Iniciar con intervalo personalizado |
+| `/slack-monitoring:list` | Mostrar menciones pendientes |
+| `/slack-monitoring:show 1` | Ver detalles de mención #1 (resumen, respuesta sugerida) |
+| `/slack-monitoring:complete 2` | Marcar mención #2 como completada |
+| `/slack-monitoring:complete all` | Marcar todas las pendientes como completadas |
+| `/slack-monitoring:digest` | Resumen semanal (últimos 7 días) |
+| `/slack-monitoring:setup` | Asistente de configuración |
+| `/slack-monitoring:help` | Mostrar ayuda |
 
 ---
 
@@ -103,7 +104,7 @@ Cada ciclo de verificación:
 
 ## Resumen Semanal
 
-Ejecuta `/slack-monitoring digest` para un resumen de 7 días:
+Ejecuta `/slack-monitoring:digest` para un resumen de 7 días:
 
 ```
 📊 Weekly Digest (03/18 ~ 03/24)
@@ -124,7 +125,7 @@ Ejecuta `/slack-monitoring digest` para un resumen de 7 días:
 
 ## Configuración
 
-Ejecuta `/slack-monitoring setup` para configurar:
+Ejecuta `/slack-monitoring:setup` para configurar:
 
 | Ajuste | Opciones | Por defecto |
 |--------|----------|-------------|
