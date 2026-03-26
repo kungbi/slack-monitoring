@@ -7,5 +7,10 @@
   "tone_examples": [],
   "default_interval": "15m",
   "summary_style": "detailed",
+  "channels": {
+    "ignore_channels": [],
+    "priority_channels": [],
+    "vip_senders": []
+  },
   "updated_at": "2026-03-24T11:00:00"
 }

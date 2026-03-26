@@ -1,3 +1,5 @@
+English | [한국어](README.ko.md) | [中文](README.zh.md) | [日本語](README.ja.md) | [Español](README.es.md) | [Tiếng Việt](README.vi.md) | [Português](README.pt.md)
+
 # slack-monitoring
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
@@ -14,28 +16,31 @@ _Stop checking Slack manually. Let Claude watch it for you._
 
 ## Quick Start
 
-### Option A: Plugin Marketplace (Recommended)
+**Step 1: Install**
 
 ```bash
+# Option A: Plugin Marketplace (Recommended)
 /plugin marketplace add https://github.com/kungbi/slack-monitoring
 /plugin install slack-monitoring
-```
 
-### Option B: Manual Install
-
-```bash
+# Option B: Manual
 git clone https://github.com/kungbi/slack-monitoring.git
 cd slack-monitoring && chmod +x install.sh && ./install.sh
 ```
 
-### Then:
+**Step 2: Setup**
 
 ```
-/slack-monitoring setup    # Configure once
-/slack-monitoring          # Start monitoring
+/slack-monitoring setup
 ```
 
-That's it. Claude watches your mentions every 15 minutes and DMs you a summary.
+**Step 3: Start monitoring**
+
+```
+/slack-monitoring
+```
+
+That's it. Claude watches your mentions every 15 minutes and sends you a summary.
 
 ---
 
@@ -46,6 +51,8 @@ That's it. Claude watches your mentions every 15 minutes and DMs you a summary.
 - **Auto-complete** — Already replied? Automatically marked as done
 - **Context summaries** — Full thread context + suggested replies, not just "someone mentioned you"
 - **Smart notifications** — Only alerts on new mentions. No duplicate noise
+- **Channel filtering** — Ignore noisy channels, prioritize critical ones, set VIP senders
+- **Weekly digest** — Response rate, avg response time, top channels & senders
 - **Customizable** — Language, tone, interval, summary style — all configurable
 
 ---
@@ -59,6 +66,7 @@ That's it. Claude watches your mentions every 15 minutes and DMs you a summary.
 | `/slack-monitoring list` | Show pending (unanswered) mentions |
 | `/slack-monitoring complete 2` | Mark mention #2 as done |
 | `/slack-monitoring complete all` | Mark all pending as done |
+| `/slack-monitoring digest` | Weekly digest (last 7 days stats) |
 | `/slack-monitoring setup` | Configuration wizard |
 | `/slack-monitoring help` | Show help |
 
@@ -69,16 +77,18 @@ That's it. Claude watches your mentions every 15 minutes and DMs you a summary.
 ```
 Every check cycle:
 
-  ┌─────────────────────────────────────────────┐
-  │  1. Search Slack for @mentions today        │
-  │  2. For each new mention:                   │
-  │     → Read full thread                      │
-  │     → Already replied? → auto_completed     │
-  │     → Not replied? → pending + DM alert     │
-  │  3. Re-check existing pending threads       │
-  │     → Reply found? → auto_completed         │
-  │  4. Save daily record                       │
-  └─────────────────────────────────────────────┘
+  ┌─────────────────────────────────────────────────┐
+  │  1. Search Slack for @mentions today            │
+  │  2. Filter by channel rules (ignore/priority)   │
+  │  3. For each new mention:                       │
+  │     → Read full thread                          │
+  │     → Already replied? → auto_completed         │
+  │     → Not replied? → pending + alert            │
+  │     → VIP/priority channel? → tagged as 🔴      │
+  │  4. Re-check existing pending threads           │
+  │     → Reply found? → auto_completed             │
+  │  5. Save daily record                           │
+  └─────────────────────────────────────────────────┘
 ```
 
 ### Status Types
@@ -89,17 +99,61 @@ Every check cycle:
 | `auto_completed` | You replied in the thread — auto-resolved |
 | `completed` | Manually marked done via `complete` command |
 
-### DM Alert Format
+### Priority
+
+| Priority | Trigger |
+|----------|---------|
+| 🔴 `high` | Mention from VIP sender or priority channel |
+| — `normal` | Everything else |
+
+### Alert Format
 
 ```
-🔔 새 Slack 멘션 (14:30 기준)
+🔔 New Slack Mentions (14:30)
+
+🚨 Priority
+#incidents
+- [#1] @CTO: Deployment rollback needed... [link]
 
 #general
-- [#1] @홍길동: API 변경 관련 확인 요청... [링크]
+- [#2] @colleague: API question... [link]
 
-✅ 자동완료 (2건) - 이미 답장됨
+✅ Auto-completed (2) - already replied
 ---
-⏳ 미답변 (1건) - /slack-monitoring list 로 확인
+⏳ Pending (1) - /slack-monitoring list to check
+```
+
+---
+
+## Weekly Digest
+
+Run `/slack-monitoring digest` for a 7-day summary:
+
+```
+📊 Weekly Digest (03/18 ~ 03/24)
+
+📈 Overview
+- Total mentions: 28
+- Responded: 25 (89%)
+- Auto-completed: 18 / Manual: 7
+- Pending: 3
+
+⏱️ Response Time
+- Average: 1h 23m
+- Fastest: 5m (#incidents)
+- Slowest: 6h (#general)
+
+📢 Top Channels
+| Channel     | Mentions | Response Rate |
+|-------------|----------|---------------|
+| #dev        | 12       | 92%           |
+| #general    | 8        | 100%          |
+
+👥 Top Senders
+| Sender      | Mentions | Response Rate |
+|-------------|----------|---------------|
+| Alice       | 7        | 100%          |
+| Bob         | 5        | 80%           |
 ```
 
 ---
@@ -111,12 +165,45 @@ Run `/slack-monitoring setup` to configure:
 | Setting | Options | Default |
 |---------|---------|---------|
 | **Slack connection** | Auto-detected | — |
-| **Language** | 한국어, English | 한국어 |
+| **Language** | Korean, English | Korean |
 | **Tone** | Formal, Casual, Auto-learn from your messages | Formal |
 | **Interval** | 1m, 5m, 10m, 15m, 30m, 1h, custom | 15m |
 | **Summary style** | Brief, Detailed, Full context | Detailed |
+| **Ignore channels** | Channels to skip (e.g. #random, #fun) | None |
+| **Priority channels** | Channels shown first (e.g. #incidents) | None |
+| **VIP senders** | People always marked high priority | None |
 
-Config stored at `~/.claude/slack-monitoring/config.json`
+<details>
+<summary>Config file format</summary>
+
+`~/.claude/slack-monitoring/config.json`:
+
+```json
+{
+  "user_id": "U01234567",
+  "user_name": "Your Name",
+  "workspace": "your-workspace",
+  "language": "ko",
+  "tone": "formal",
+  "tone_examples": [],
+  "default_interval": "15m",
+  "summary_style": "detailed",
+  "channels": {
+    "ignore_channels": [
+      { "id": "C01234567", "name": "#random" }
+    ],
+    "priority_channels": [
+      { "id": "C07654321", "name": "#incidents" }
+    ],
+    "vip_senders": [
+      { "id": "U09876543", "name": "CTO" }
+    ]
+  },
+  "updated_at": "2026-03-24T11:00:00"
+}
+```
+
+</details>
 
 ---
 
@@ -143,12 +230,13 @@ Config stored at `~/.claude/slack-monitoring/config.json`
       "channel_name": "#general",
       "thread_ts": "1774253132.128239",
       "message_ts": "1774255578.683349",
-      "from": "홍길동",
+      "from": "Alice",
       "from_id": "U01234567",
       "summary": "Thread context summary",
       "suggested_reply": "Suggested response",
       "permalink": "https://slack.com/archives/...",
       "status": "pending",
+      "priority": "normal",
       "first_seen": "2026-03-24T09:15:00",
       "completed_at": null
     }
@@ -161,8 +249,6 @@ Config stored at `~/.claude/slack-monitoring/config.json`
 ---
 
 ## Manual Installation
-
-If you prefer not to use the install script:
 
 ```bash
 # Skill file
