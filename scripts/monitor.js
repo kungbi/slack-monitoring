@@ -97,52 +97,12 @@ function hasMyReply(messages, userId) {
   return messages.slice(1).some(m => m.user === userId && !m.bot_id);
 }
 
-// --- Claude (Haiku) for summaries ---
+// --- Thread text extraction (for session-based summarization) ---
 
-async function generateSummary(messages, config) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return { summary: '(API key not found)', suggested_reply: '' };
-  }
-
-  const lang = config.language === 'ko' ? 'Korean' : 'English';
-  const tone = config.tone || 'formal';
-  const style = config.summary_style || 'detailed';
-
-  const threadText = messages
+function extractThreadText(messages) {
+  return messages
     .map(m => `[${m.username || m.user || 'bot'}]: ${m.text}`)
     .join('\n');
-
-  const prompt = `Analyze this Slack thread where I was mentioned.
-Language: ${lang}, Summary style: ${style}, Reply tone: ${tone}
-
-Thread:
-${threadText}
-
-Respond ONLY with JSON:
-{"summary":"...","suggested_reply":"..."}`;
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 512,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
-
-  const data = await res.json();
-  try {
-    const text = data.content?.[0]?.text || '';
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) return JSON.parse(match[0]);
-  } catch (_) {}
-  return { summary: data.content?.[0]?.text || '(parse error)', suggested_reply: '' };
 }
 
 // --- Terminal output ---
@@ -167,7 +127,7 @@ function printSummary(newPending, autoCompleted, config) {
   for (const [ch, items] of Object.entries(byChannel)) {
     console.log(`#${ch}`);
     for (const m of items) {
-      const snippet = (m.summary || '').split('\n')[0].slice(0, 60);
+      const snippet = (m.thread_text || '').split('\n')[0].slice(0, 60);
       console.log(`- [#${m.id}] @${m.from}: ${snippet}... (${m.permalink})`);
     }
     console.log('');
@@ -221,13 +181,7 @@ async function check(config) {
     const alreadyReplied = hasMyReply(messages, config.user_id);
     const status = alreadyReplied ? 'auto_completed' : 'pending';
 
-    let summary = '';
-    let suggested_reply = '';
-    if (!alreadyReplied) {
-      const result = await generateSummary(messages, config);
-      summary = result.summary;
-      suggested_reply = result.suggested_reply;
-    }
+    const threadText = !alreadyReplied ? extractThreadText(messages) : '';
 
     const thread = {
       id: today.threads.length + 1,
@@ -237,8 +191,7 @@ async function check(config) {
       message_ts: mention.ts,
       from: mention.username || mention.user,
       from_id: mention.user,
-      summary,
-      suggested_reply,
+      thread_text: threadText,
       permalink: mention.permalink,
       status,
       first_seen: new Date().toISOString(),

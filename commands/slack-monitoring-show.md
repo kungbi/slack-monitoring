@@ -22,8 +22,13 @@ Use the `tone` value to style suggested replies.
    curl -s -H "Authorization: Bearer {slack_token}" \
      "https://slack.com/api/conversations.replies?channel={channel_id}&ts={thread_ts}"
    ```
-   The response `messages` array contains all messages in the thread. Use this to get the latest thread content for the summary and check if new replies were added since last seen.
-4. Display in the following format:
+   The response `messages` array contains all messages in the thread. Use this to get the latest thread content and check if new replies were added since last seen.
+4. **Generate summary and suggested reply in the current Claude session** (do NOT use any external API):
+   - Use the thread messages from step 3 and the `thread_text` field from the data file
+   - Read `language`, `tone`, and `summary_style` from config
+   - Summarize the thread context, organize responses, and generate a suggested reply matching the configured tone
+   - This runs inside the Claude Code session — no ANTHROPIC_API_KEY needed
+5. Display in the following format:
 
 **If language = ko:**
 ```

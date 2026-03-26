@@ -19,13 +19,8 @@ _Deja de revisar Slack manualmente. Deja que Claude lo vigile por ti._
 **Paso 1: Instalar**
 
 ```bash
-# Opción A: Plugin Marketplace (Recomendado)
 /plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
-
-# Opción B: Instalación manual
-git clone https://github.com/kungbi/slack-monitoring.git
-cd slack-monitoring && chmod +x install.sh && ./install.sh
 ```
 
 **Paso 2: Configurar**

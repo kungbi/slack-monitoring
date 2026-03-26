@@ -19,13 +19,8 @@ _不要手动检查 Slack。让 Claude 替你监控。_
 **第一步：安装**
 
 ```bash
-# 方式 A：插件市场（推荐）
 /plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
-
-# 方式 B：手动安装
-git clone https://github.com/kungbi/slack-monitoring.git
-cd slack-monitoring && chmod +x install.sh && ./install.sh
 ```
 
 **第二步：设置**

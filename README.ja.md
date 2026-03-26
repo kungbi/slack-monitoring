@@ -19,13 +19,8 @@ _Slack を手動で確認するのはやめましょう。Claude に任せてく
 **ステップ 1：インストール**
 
 ```bash
-# 方法 A：プラグインマーケットプレイス（推奨）
 /plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
-
-# 方法 B：手動インストール
-git clone https://github.com/kungbi/slack-monitoring.git
-cd slack-monitoring && chmod +x install.sh && ./install.sh
 ```
 
 **ステップ 2：セットアップ**

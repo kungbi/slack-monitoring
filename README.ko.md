@@ -19,13 +19,8 @@ _Slack을 직접 확인하지 마세요. Claude가 대신 지켜봅니다._
 **Step 1: 설치**
 
 ```bash
-# 방법 A: 플러그인 마켓플레이스 (추천)
 /plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
-
-# 방법 B: 수동 설치
-git clone https://github.com/kungbi/slack-monitoring.git
-cd slack-monitoring && chmod +x install.sh && ./install.sh
 ```
 
 **Step 2: 초기 설정**
@@ -248,28 +243,6 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 ```
 
 </details>
-
----
-
-## 수동 설치
-
-```bash
-# 스킬 파일
-mkdir -p ~/.claude/skills/user/slack-monitoring
-cp skill/SKILL.md ~/.claude/skills/user/slack-monitoring/SKILL.md
-
-# 커맨드 파일
-mkdir -p ~/.claude/commands
-cp command/slack-monitoring.md ~/.claude/commands/slack-monitoring.md
-```
-
-## 삭제
-
-```bash
-rm -rf ~/.claude/skills/user/slack-monitoring
-rm -f ~/.claude/commands/slack-monitoring.md
-rm -rf ~/.claude/slack-monitoring  # 선택: 데이터도 삭제
-```
 
 ---
 

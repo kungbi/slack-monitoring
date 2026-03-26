@@ -1,30 +1,17 @@
 Run the Slack monitoring initial setup wizard.
 
-## Language & Tone
-Read `~/.claude/slack-monitoring/config.json` at the start of execution.
-Use the `language` value (`ko` or `en`) for all user-facing output below.
-- Compact i18n: "한국어 텍스트" (ko) / "English text" (en)
-- Block i18n: see `If language = ko:` / `If language = en:` sections below.
-
-Read config file `~/.claude/slack-monitoring/config.json`. If it doesn't exist, create a new one.
-Proceed through each step in order. If a value is already set, show the current value and ask whether to change it.
+**All output in this command follows these rules:**
+- Steps 1-3: always English (language not yet selected)
+- Steps 4 onward: use the language selected in Step 3
+- DO NOT read language from config file at any point
 
 **All selections MUST use the `AskUserQuestion` tool.**
 
+---
+
 ## Step 1. Get Slack User Token
 
-**If language = ko:**
-```
-🔑 Slack User Token이 필요합니다.
-
-1. https://api.slack.com/apps 에서 새 앱 생성 (또는 기존 앱 사용)
-2. OAuth & Permissions → User Token Scopes 추가:
-   search:read, channels:history, groups:history, im:history, usergroups:read, users:read
-3. 워크스페이스에 앱 설치
-4. User OAuth Token (xoxp-로 시작) 복사
-```
-
-**If language = en:**
+Show this in English:
 ```
 🔑 A Slack User Token is required.
 
@@ -35,30 +22,21 @@ Proceed through each step in order. If a value is already set, show the current 
 4. Copy the User OAuth Token (starts with xoxp-)
 ```
 
-AskUserQuestion: "Slack User Token을 붙여넣어 주세요 (xoxp-...)" (ko) / "Paste your Slack User Token (xoxp-...)" (en)
+AskUserQuestion: "Paste your Slack User Token (xoxp-...)"
+
+If the user leaves it blank, read the existing token from `~/.claude/slack-monitoring/config.json` and continue with that.
+
+---
 
 ## Step 2. Verify connection & detect user
 
-Use Bash tool to call auth.test:
+Use Bash tool:
 ```bash
 curl -s -H "Authorization: Bearer {token}" "https://slack.com/api/auth.test"
 ```
 
-Parse JSON response:
-- `ok: true` → save `user_id` (from `user_id` field), `user_name` (from `user` field), `workspace` (from `team` field)
-- `ok: false` → show error and stop
-
-Success display: "Slack 연결됨 ({user_name} / {workspace})" (ko) / "Slack connected ({user_name} / {workspace})" (en)
-
-**If language = ko (on error):**
-```
-⚠️ 연결 실패: {error}
-- 토큰이 xoxp-로 시작하는지 확인
-- 필요한 스코프가 모두 추가됐는지 확인
-- /slack-monitoring:setup 을 다시 실행해주세요
-```
-
-**If language = en (on error):**
+- `ok: true` → note down `user_id`, `user_name`, `team` (workspace) from response
+- `ok: false` → show in English and stop:
 ```
 ⚠️ Connection failed: {error}
 - Verify token starts with xoxp-
@@ -66,22 +44,25 @@ Success display: "Slack 연결됨 ({user_name} / {workspace})" (ko) / "Slack con
 - Run /slack-monitoring:setup again
 ```
 
-## Step 3. Language setting
+Show in English: "✅ Slack connected ({user_name} / {workspace})"
+
+---
+
+## Step 3. Language
 
 AskUserQuestion:
-- question: "🌐 알림 언어를 선택해주세요" (ko) / "🌐 Select notification language" (en)
+- question: "🌐 Select notification language"
 - options:
-  1. 한국어 (ko)
-  2. English (en)
+  1. English
+  2. 한국어
 
-Note: This step determines which language is used for all subsequent wizard steps and all future monitoring output.
+Set `selected_language` = `en` or `ko` based on selection. Use this for all steps from here.
 
-## Step 4. Suggested reply tone setting
+---
 
-Present language-specific tone options based on the language selected in Step 3.
+## Step 4. Suggested reply tone
 
-**If language = ko:**
-
+**If selected_language = ko:**
 AskUserQuestion:
 - question: "💬 추천 답변 말투를 선택해주세요"
 - options:
@@ -91,8 +72,7 @@ AskUserQuestion:
   4. MZ 스타일 → "ㅇㅋ 바로 확인할게요~"
   5. Slack 학습 - 내 최근 메시지에서 말투를 자동 학습
 
-**If language = en:**
-
+**If selected_language = en:**
 AskUserQuestion:
 - question: "💬 Select suggested reply tone"
 - options:
@@ -101,75 +81,136 @@ AskUserQuestion:
   3. Concise → "Noted. Will handle."
   4. Auto-learn - Learn tone from my recent Slack messages
 
-Note: `mz` tone is only available for Korean users. If switching from `ko` to `en` with `tone=mz`, fall back to `formal`.
-
-Auto-learn selected: Use Bash tool to fetch recent messages:
+Auto-learn selected: Use Bash tool:
 ```bash
 curl -s -H "Authorization: Bearer {token}" \
   "https://slack.com/api/search.messages?query=from%3A%40{user_id}%20-in%3Adm&count=50&sort=timestamp&sort_dir=desc"
 ```
-Analyze tone patterns from the results and save to `tone_examples` in config (DM excluded, channel messages only).
+Analyze tone patterns and save to `tone_examples` in config.
 
-## Step 5. Default monitoring interval
+---
 
-AskUserQuestion:
-- question: "⏱️ 기본 모니터링 간격을 설정해주세요" (ko) / "⏱️ Set default monitoring interval" (en)
-- options:
-  1. 1min
-  2. 5min
-  3. 10min
-  4. 15min (default)
-  5. 30min
-  6. 1h
-  7. "직접 입력 (예: 3m, 45m, 2h)" (ko) / "Custom input (e.g.: 3m, 45m, 2h)" (en)
+## Step 5. Monitoring interval
 
-- Option 7 selected: AskUserQuestion with "원하는 간격을 입력해주세요 (예: 3m, 45m, 2h)" (ko) / "Enter desired interval (e.g.: 3m, 45m, 2h)" (en)
+**If selected_language = ko:**
+AskUserQuestion: "⏱️ 기본 모니터링 간격을 설정해주세요"
+
+**If selected_language = en:**
+AskUserQuestion: "⏱️ Set default monitoring interval"
+
+Options (both languages):
+1. 15min (default)
+2. 5min
+3. 10min
+4. 30min
+5. 1h
+6. 1min
+7. Custom (enter manually)
+
+If option 7: AskUserQuestion "Enter interval (e.g.: 3m, 45m, 2h)"
+
+---
 
 ## Step 6. Summary style
 
-AskUserQuestion:
-- question: "📝 멘션 요약 스타일을 선택해주세요" (ko) / "📝 Select mention summary style" (en)
+**If selected_language = ko:**
+AskUserQuestion: "📝 멘션 요약 스타일을 선택해주세요"
 - options:
-
-**If language = ko:**
-  1. 간략 - 한 줄 요약 + 추천 답변
-  2. 상세 (기본) - 스레드 배경/답변 정리/테이블 + 추천 답변
+  1. 상세 (기본) - 스레드 배경/답변 정리/테이블 + 추천 답변
+  2. 간략 - 한 줄 요약 + 추천 답변
   3. 풀 컨텍스트 - 상세 + 원문 인용 포함
 
-**If language = en:**
-  1. Brief - One-line summary + suggested reply
-  2. Detailed (default) - Thread background/response summary/table + suggested reply
+**If selected_language = en:**
+AskUserQuestion: "📝 Select mention summary style"
+- options:
+  1. Detailed (default) - Thread background/response summary/table + suggested reply
+  2. Brief - One-line summary + suggested reply
   3. Full context - Detailed + original message quotes included
+
+---
 
 ## Step 7. Auto-detect user groups
 
-Use Bash tool to fetch user groups:
+Use Bash tool:
 ```bash
 curl -s -H "Authorization: Bearer {token}" \
   "https://slack.com/api/usergroups.list?include_users=true"
 ```
 
-Parse response: find all groups where `users` array contains `{user_id}`.
+**If `ok: false` (e.g. `missing_scope`):**
 
-If groups found, present them via AskUserQuestion for confirmation.
+Show the error clearly so the user knows what happened and how to fix it:
 
-**If language = ko:**
+**If selected_language = ko:**
 ```
-👥 내가 속한 Slack 그룹이 발견됐습니다:
-1. @backend-team
-2. @all-engineers
-(없음 선택 시 건너뜀)
+⚠️ 그룹 멘션 조회 실패: {error}
+
+그룹 멘션 모니터링을 사용하려면 Slack 앱에 'usergroups:read' 권한이 필요합니다.
+→ https://api.slack.com/apps → 앱 선택 → OAuth & Permissions → User Token Scopes에 'usergroups:read' 추가 → 앱 재설치
+
+지금은 건너뛰고, 나중에 /slack-monitoring:setup 으로 다시 설정할 수 있습니다.
 ```
-AskUserQuestion: "모니터링할 그룹을 선택해주세요 (쉼표로 구분, 없으면 Enter)" (ko) / "Select groups to monitor (comma-separated, Enter to skip)" (en)
 
-- Save selected group handles as `group_mentions` array in config (e.g., `["backend-team", "all-engineers"]`)
-- If no groups found or user skips: save `group_mentions: []`
+**If selected_language = en:**
+```
+⚠️ Failed to fetch user groups: {error}
 
-## Step 8. Save config & confirm
+Group mention monitoring requires the 'usergroups:read' scope.
+→ https://api.slack.com/apps → Select your app → OAuth & Permissions → Add 'usergroups:read' to User Token Scopes → Reinstall app
 
-Save all settings to `~/.claude/slack-monitoring/config.json` and display summary:
+You can skip this for now and re-run /slack-monitoring:setup later to add it.
+```
 
-**If language = ko:**
+Then AskUserQuestion:
+- ko: "그룹 핸들을 직접 입력하시겠습니까? (예: @backend-team, @devops) 없으면 Enter"
+- en: "Would you like to enter group handles manually? (e.g. @backend-team, @devops) Press Enter to skip"
+
+If user enters handles, save them. If skipped: `[]`.
+
+**If `ok: true`:**
+
+Find groups where `users` array contains `{user_id}`.
+
+If groups found:
+
+**If selected_language = ko:**
+AskUserQuestion: "👥 모니터링할 그룹을 선택해주세요 (쉼표로 구분, 없으면 Enter)\n발견된 그룹: {group list}"
+
+**If selected_language = en:**
+AskUserQuestion: "👥 Select groups to monitor (comma-separated, Enter to skip)\nFound groups: {group list}"
+
+If no groups found:
+
+**If selected_language = ko:**
+AskUserQuestion: "👥 소속된 그룹이 없습니다. 그룹 핸들을 직접 입력하시겠습니까? (예: @backend-team) 없으면 Enter"
+
+**If selected_language = en:**
+AskUserQuestion: "👥 No groups found for your account. Enter group handles manually? (e.g. @backend-team) Press Enter to skip"
+
+Save selected handles as `group_mentions` array. If skipped: `[]`.
+
+---
+
+## Step 8. Save & confirm
+
+Save all collected values to `~/.claude/slack-monitoring/config.json`:
+```json
+{
+  "slack_token": "{token}",
+  "user_id": "{user_id}",
+  "user_name": "{user_name}",
+  "workspace": "{workspace}",
+  "language": "{selected_language}",
+  "tone": "{tone}",
+  "tone_examples": [],
+  "default_interval": "{interval}",
+  "summary_style": "{style}",
+  "group_mentions": {group_mentions},
+  "updated_at": "{now}"
+}
+```
+
+**If selected_language = ko:**
 ```
 ✅ 설정 완료!
 
@@ -178,12 +219,12 @@ Save all settings to `~/.claude/slack-monitoring/config.json` and display summar
 💬 말투: {tone}
 ⏱️ 간격: {interval}
 📝 스타일: {style}
-👥 모니터링 그룹: {group_mentions joined by ", " or "없음"}
+👥 모니터링 그룹: {group_mentions or "없음"}
 
 변경하려면 /slack-monitoring:setup 을 다시 실행하세요.
 ```
 
-**If language = en:**
+**If selected_language = en:**
 ```
 ✅ Setup complete!
 
@@ -192,29 +233,14 @@ Save all settings to `~/.claude/slack-monitoring/config.json` and display summar
 💬 Tone: {tone}
 ⏱️ Interval: {interval}
 📝 Style: {style}
-👥 Monitored groups: {group_mentions joined by ", " or "None"}
+👥 Monitored groups: {group_mentions or "None"}
 
 To change settings, run /slack-monitoring:setup again.
 ```
 
-## Config file format
+---
 
-`~/.claude/slack-monitoring/config.json`:
-```json
-{
-  "slack_token": "xoxp-xxxxxxxxxxxx",
-  "user_id": "UXXXXXXXXX",
-  "user_name": "Your Name",
-  "workspace": "your-workspace",
-  "language": "ko",
-  "tone": "formal",
-  "tone_examples": [],
-  "default_interval": "15m",
-  "summary_style": "detailed",
-  "group_mentions": ["backend-team"],
-  "updated_at": "2026-03-25T00:00:00"
-}
-```
+## Config file format reference
 
 tone values: `formal`, `emoji`, `concise`, `mz` (ko only), `learned`
 summary_style values: `brief`, `detailed`, `full`

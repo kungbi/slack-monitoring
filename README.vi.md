@@ -19,13 +19,8 @@ _Đừng kiểm tra Slack thủ công. Hãy để Claude theo dõi cho bạn._
 **Bước 1: Cài đặt**
 
 ```bash
-# Cách A: Plugin Marketplace (Khuyến nghị)
 /plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
-
-# Cách B: Cài đặt thủ công
-git clone https://github.com/kungbi/slack-monitoring.git
-cd slack-monitoring && chmod +x install.sh && ./install.sh
 ```
 
 **Bước 2: Thiết lập**

@@ -19,13 +19,8 @@ _Stop checking Slack manually. Let Claude watch it for you._
 **Step 1: Install**
 
 ```bash
-# Option A: Plugin Marketplace (Recommended)
 /plugin marketplace add https://github.com/kungbi/slack-monitoring.git
 /plugin install slack-monitoring
-
-# Option B: Manual
-git clone https://github.com/kungbi/slack-monitoring.git
-cd slack-monitoring && chmod +x install.sh && ./install.sh
 ```
 
 **Step 2: Setup**
@@ -248,28 +243,6 @@ Run `/slack-monitoring:setup` to configure:
 ```
 
 </details>
-
----
-
-## Manual Installation
-
-```bash
-# Skill file
-mkdir -p ~/.claude/skills/user/slack-monitoring
-cp skill/SKILL.md ~/.claude/skills/user/slack-monitoring/SKILL.md
-
-# Command file
-mkdir -p ~/.claude/commands
-cp command/slack-monitoring.md ~/.claude/commands/slack-monitoring.md
-```
-
-## Uninstall
-
-```bash
-rm -rf ~/.claude/skills/user/slack-monitoring
-rm -f ~/.claude/commands/slack-monitoring.md
-rm -rf ~/.claude/slack-monitoring  # optional: remove data
-```
 
 ---
 
