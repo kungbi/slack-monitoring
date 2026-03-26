@@ -1,0 +1,21 @@
+{
+  "name": "slack-monitoring",
+  "version": "1.0.0",
+  "description": "Slack mention monitoring for Claude Code - thread tracking, auto-completion, context summaries",
+  "author": {
+    "name": "kungbi"
+  },
+  "repository": "https://github.com/kungbi/slack-monitoring",
+  "homepage": "https://github.com/kungbi/slack-monitoring",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "slack",
+    "monitoring",
+    "mentions",
+    "notifications"
+  ],
+  "skills": "./skill/",
+  "commands": "./command/"
+}

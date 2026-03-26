@@ -1,0 +1,11 @@
+{
+  "user_id": "U01234567",
+  "user_name": "Your Name",
+  "workspace": "your-workspace",
+  "language": "ko",
+  "tone": "formal",
+  "tone_examples": [],
+  "default_interval": "15m",
+  "summary_style": "detailed",
+  "updated_at": "2026-03-24T11:00:00"
+}
