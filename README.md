@@ -71,6 +71,7 @@ That's it. Claude watches your mentions every 15 minutes and sends you a summary
 | `/slack-monitoring:setup` | Configuration wizard |
 | `/slack-monitoring:help` | Show help |
 | `/slack-monitoring:status` | Show config and today's mention stats |
+| `/slack-monitoring:stop` | Stop the monitoring daemon |
 
 ---
 

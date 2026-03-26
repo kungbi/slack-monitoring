@@ -71,6 +71,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 | `/slack-monitoring:setup` | Assistente de configuração |
 | `/slack-monitoring:help` | Mostrar ajuda |
 | `/slack-monitoring:status` | Mostrar configuração e estatísticas de menções do dia |
+| `/slack-monitoring:stop` | Parar o monitoramento |
 
 ---
 

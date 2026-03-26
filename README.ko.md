@@ -71,6 +71,7 @@ cd slack-monitoring && chmod +x install.sh && ./install.sh
 | `/slack-monitoring:setup` | 설정 마법사 |
 | `/slack-monitoring:help` | 도움말 |
 | `/slack-monitoring:status` | 설정 및 오늘 멘션 현황 확인 |
+| `/slack-monitoring:stop` | 모니터링 중지 |
 
 ---
 

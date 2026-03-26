@@ -71,6 +71,7 @@ Eso es todo. Claude revisa tus menciones cada 15 minutos y te envía un resumen.
 | `/slack-monitoring:setup` | Asistente de configuración |
 | `/slack-monitoring:help` | Mostrar ayuda |
 | `/slack-monitoring:status` | Mostrar configuración y estadísticas de menciones del día |
+| `/slack-monitoring:stop` | Detener el monitoreo |
 
 ---
 
