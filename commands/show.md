@@ -47,7 +47,7 @@ Use the `tone` value to style suggested replies.
 ### 💬 추천 답변
 > 추천 답변 내용...
 
-/slack-monitoring-complete <id>    ← 완료 처리
+/slack-monitoring:complete <id>    ← 완료 처리
 ```
 
 **If language = en:**
@@ -67,7 +67,7 @@ Full thread context summary...
 ### 💬 Suggested Reply
 > Suggested reply content...
 
-/slack-monitoring-complete <id>    ← Mark complete
+/slack-monitoring:complete <id>    ← Mark complete
 ```
 
 - If status is `pending`, include suggested reply
@@ -78,12 +78,12 @@ If no argument provided, show usage hint:
 
 **If language = ko:**
 ```
-사용법: /slack-monitoring-show <id>
-💡 ID 확인: /slack-monitoring-list
+사용법: /slack-monitoring:show <id>
+💡 ID 확인: /slack-monitoring:list
 ```
 
 **If language = en:**
 ```
-Usage: /slack-monitoring-show <id>
-💡 Check IDs: /slack-monitoring-list
+Usage: /slack-monitoring:show <id>
+💡 Check IDs: /slack-monitoring:list
 ```

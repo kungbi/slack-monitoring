@@ -23,9 +23,23 @@ Then exit.
 ```bash
 ls ~/.claude/slack-monitoring/scripts/monitor.js 2>/dev/null
 ```
-If not found, show:
-- ko: "⚠️ monitor.js를 찾을 수 없습니다. 재설치: git clone https://github.com/kungbi/slack-monitoring.git && cd slack-monitoring && ./install.sh"
-- en: "⚠️ monitor.js not found. Reinstall: git clone https://github.com/kungbi/slack-monitoring.git && cd slack-monitoring && ./install.sh"
+If not found, auto-install:
+- ko: "⚙️ monitor.js가 없습니다. 자동 설치 중..."
+- en: "⚙️ monitor.js not found. Auto-installing..."
+
+Then run:
+```bash
+git clone https://github.com/kungbi/slack-monitoring.git /tmp/slack-monitoring-install && cp -r /tmp/slack-monitoring-install/scripts ~/.claude/slack-monitoring/scripts && rm -rf /tmp/slack-monitoring-install
+```
+
+If install succeeds:
+- ko: "✅ monitor.js 설치 완료!"
+- en: "✅ monitor.js installed!"
+
+If install fails:
+- ko: "⚠️ 자동 설치 실패. 수동 설치: git clone https://github.com/kungbi/slack-monitoring.git && cp -r slack-monitoring/scripts ~/.claude/slack-monitoring/scripts"
+- en: "⚠️ Auto-install failed. Manual install: git clone https://github.com/kungbi/slack-monitoring.git && cp -r slack-monitoring/scripts ~/.claude/slack-monitoring/scripts"
+Then exit.
 
 3. Start the daemon using the Bash tool:
 ```bash

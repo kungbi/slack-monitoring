@@ -26,9 +26,8 @@ Use the `language` value (`ko` or `en`) for all user-facing output below.
 - 말투: formal
 - 기본 간격: 15m
 - 요약 스타일: detailed
-- 무시 채널: #random, #fun (2개)
-- 우선 채널: #incidents (1개)
-- VIP 발신자: CTO (1명)
+- 요약 모델: haiku
+- 모니터링 그룹: @dev_timespread, @backend_timespread (2개)
 
 📊 오늘 멘션 (YYYY-MM-DD)
 - 전체: N건
@@ -49,9 +48,8 @@ Use the `language` value (`ko` or `en`) for all user-facing output below.
 - Tone: formal
 - Default interval: 15m
 - Summary style: detailed
-- Ignore channels: #random, #fun (2)
-- Priority channels: #incidents (1)
-- VIP senders: CTO (1)
+- Summary model: haiku
+- Monitored groups: @dev_timespread, @backend_timespread (2)
 
 📊 Today's Mentions (YYYY-MM-DD)
 - Total: N
@@ -76,5 +74,6 @@ Use the `language` value (`ko` or `en`) for all user-facing output below.
 ```
 
 ## Notes
-- If ignore_channels / priority_channels / vip_senders is empty, show "없음" (ko) / "None" (en)
+- If model or group_mentions is missing from config, omit those lines
+- If group_mentions is empty, show "없음" (ko) / "None" (en)
 - Pending count > 0: show 🔴, else show ✅

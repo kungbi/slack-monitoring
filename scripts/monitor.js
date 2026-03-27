@@ -30,32 +30,53 @@ function loadConfig() {
   return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
 }
 
-function getTodayFile() {
-  const today = new Date().toISOString().split('T')[0];
-  return path.join(DATA_DIR, `${today}.json`);
+function getDateFile(dateStr) {
+  return path.join(DATA_DIR, `${dateStr}.json`);
 }
 
-function loadTodayData() {
-  const file = getTodayFile();
+function loadDateData(dateStr) {
+  const file = getDateFile(dateStr);
   if (!fs.existsSync(file)) {
-    return { date: new Date().toISOString().split('T')[0], threads: [] };
+    return { date: dateStr, threads: [] };
   }
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
-function saveTodayData(data) {
-  fs.writeFileSync(getTodayFile(), JSON.stringify(data, null, 2));
+function saveDateData(dateStr, data) {
+  fs.writeFileSync(getDateFile(dateStr), JSON.stringify(data, null, 2));
 }
 
 // --- Slack API ---
 
-async function slackApi(token, endpoint, params = {}) {
+async function slackApi(token, endpoint, params = {}, retries = 1) {
   const url = new URL(`https://slack.com/api/${endpoint}`);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  const res = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return res.json();
+  let res;
+  try {
+    res = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(30000),
+    });
+  } catch (e) {
+    if (retries > 0) {
+      console.error(`⚠️ Network error (${endpoint}): ${e.message}. Retrying...`);
+      await new Promise(r => setTimeout(r, 3000));
+      return slackApi(token, endpoint, params, retries - 1);
+    }
+    console.error(`⚠️ Network error (${endpoint}): ${e.message}. Skipping.`);
+    return { ok: false, error: e.message };
+  }
+  const data = await res.json();
+  if (!data.ok && data.error === 'ratelimited' && retries > 0) {
+    const wait = parseInt(res.headers.get('Retry-After') || '30', 10);
+    console.error(`⏳ Rate limited. Retrying in ${wait}s...`);
+    await new Promise(r => setTimeout(r, wait * 1000));
+    return slackApi(token, endpoint, params, retries - 1);
+  }
+  if (!data.ok) {
+    console.error(`⚠️ Slack API error (${endpoint}): ${data.error}`);
+  }
+  return data;
 }
 
 async function searchMentions(token, userId, groupMentions = []) {
@@ -67,18 +88,28 @@ async function searchMentions(token, userId, groupMentions = []) {
   const results = [];
 
   for (const query of queries) {
-    const data = await slackApi(token, 'search.messages', {
-      query,
-      sort: 'timestamp',
-      sort_dir: 'desc',
-      count: 100,
-    });
-    if (data.ok && data.messages?.matches) {
-      for (const m of data.messages.matches) {
-        if (!seen.has(m.ts)) {
-          seen.add(m.ts);
-          results.push(m);
+    let page = 1;
+    const maxPages = 5;
+    while (page <= maxPages) {
+      const data = await slackApi(token, 'search.messages', {
+        query,
+        sort: 'timestamp',
+        sort_dir: 'desc',
+        count: 100,
+        page: String(page),
+      });
+      if (data.ok && data.messages?.matches) {
+        for (const m of data.messages.matches) {
+          if (!seen.has(m.ts)) {
+            seen.add(m.ts);
+            results.push(m);
+          }
         }
+        const paging = data.messages.paging || data.messages.pagination;
+        if (!paging || page >= (paging.pages || paging.page_count || 1)) break;
+        page++;
+      } else {
+        break;
       }
     }
   }
@@ -148,7 +179,8 @@ function printSummary(newPending, autoCompleted, config) {
 // --- Main check ---
 
 async function check(config) {
-  const today = loadTodayData();
+  const dateStr = new Date().toISOString().split('T')[0];
+  const today = loadDateData(dateStr);
   const existingTs = new Set(today.threads.map(t => t.message_ts));
 
   const mentions = await searchMentions(config.slack_token, config.user_id, config.group_mentions);
@@ -178,10 +210,11 @@ async function check(config) {
 
     // New mention
     const messages = await getThread(config.slack_token, channelId, threadTs);
+    const isSlackbot = mention.user === 'USLACKBOT';
     const alreadyReplied = hasMyReply(messages, config.user_id);
-    const status = alreadyReplied ? 'auto_completed' : 'pending';
+    const status = (alreadyReplied || isSlackbot) ? 'auto_completed' : 'pending';
 
-    const threadText = !alreadyReplied ? extractThreadText(messages) : '';
+    const threadText = extractThreadText(messages);
 
     const thread = {
       id: today.threads.length + 1,
@@ -203,7 +236,7 @@ async function check(config) {
     else autoCompleted.push(thread);
   }
 
-  saveTodayData(today);
+  saveDateData(dateStr, today);
   printSummary(newPending, autoCompleted, config);
 }
 
@@ -218,18 +251,21 @@ async function main() {
   const intervalMs = parseInterval(intervalArg || config.default_interval);
   const ko = config.language === 'ko';
 
-  // Save PID for stop command
   fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(PID_FILE, String(process.pid));
+
+  // Only save PID for daemon mode (not --once)
+  if (!isOnce) {
+    fs.writeFileSync(PID_FILE, String(process.pid));
+  }
 
   const cleanup = () => {
-    if (fs.existsSync(PID_FILE)) fs.unlinkSync(PID_FILE);
+    if (!isOnce && fs.existsSync(PID_FILE)) fs.unlinkSync(PID_FILE);
     process.exit(0);
   };
   process.on('SIGINT', cleanup);
   process.on('SIGTERM', cleanup);
   process.on('exit', () => {
-    if (fs.existsSync(PID_FILE)) fs.unlinkSync(PID_FILE);
+    if (!isOnce && fs.existsSync(PID_FILE)) fs.unlinkSync(PID_FILE);
   });
 
   const intervalLabel = intervalArg || config.default_interval || '15m';
@@ -246,13 +282,15 @@ async function main() {
 
   if (isOnce) return;
 
-  setInterval(async () => {
+  async function loop() {
     try {
       await check(loadConfig()); // reload config each cycle
     } catch (e) {
       console.error('Check error:', e.message);
     }
-  }, intervalMs);
+    setTimeout(loop, intervalMs);
+  }
+  setTimeout(loop, intervalMs);
 }
 
 main().catch(e => {

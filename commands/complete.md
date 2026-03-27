@@ -31,10 +31,10 @@ If no argument provided, show usage hint:
 
 **If language = ko:**
 ```
-사용법: /slack-monitoring-complete <id> 또는 /slack-monitoring-complete all
+사용법: /slack-monitoring:complete <id> 또는 /slack-monitoring:complete all
 ```
 
 **If language = en:**
 ```
-Usage: /slack-monitoring-complete <id> or /slack-monitoring-complete all
+Usage: /slack-monitoring:complete <id> or /slack-monitoring:complete all
 ```

@@ -24,7 +24,9 @@ Show this in English:
 
 AskUserQuestion: "Paste your Slack User Token (xoxp-...)"
 
-If the user leaves it blank, read the existing token from `~/.claude/slack-monitoring/config.json` and continue with that.
+If the user leaves it blank, try to read the existing token from `~/.claude/slack-monitoring/config.json`.
+- If config exists and has a valid `slack_token` (starts with `xoxp-`): continue with that token.
+- If config does not exist or `slack_token` is missing/empty: show "⚠️ No existing token found. Please paste your Slack User Token (xoxp-...)." and ask again.
 
 ---
 
