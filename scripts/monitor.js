@@ -255,6 +255,22 @@ async function main() {
 
   // Only save PID for daemon mode (not --once)
   if (!isOnce) {
+    if (fs.existsSync(PID_FILE)) {
+      const existingPid = parseInt(fs.readFileSync(PID_FILE, 'utf8').trim(), 10);
+      try {
+        process.kill(existingPid, 0);
+        console.error(ko
+          ? `⚠️ 모니터링이 이미 실행 중입니다 (PID ${existingPid}). 중지하려면 /slack-monitoring:stop`
+          : `⚠️ Monitor already running (PID ${existingPid}). To stop: /slack-monitoring:stop`);
+        process.exit(1);
+      } catch (e) {
+        if (e.code === 'ESRCH') {
+          fs.unlinkSync(PID_FILE);
+        } else {
+          throw e;
+        }
+      }
+    }
     fs.writeFileSync(PID_FILE, String(process.pid));
   }
 
@@ -282,11 +298,22 @@ async function main() {
 
   if (isOnce) return;
 
+  let consecutiveFailures = 0;
+  const MAX_FAILURES = 5;
+
   async function loop() {
     try {
       await check(loadConfig()); // reload config each cycle
+      consecutiveFailures = 0;
     } catch (e) {
+      consecutiveFailures++;
       console.error('Check error:', e.message);
+      if (consecutiveFailures >= MAX_FAILURES) {
+        console.error(ko
+          ? `⚠️ ${MAX_FAILURES}회 연속 실패. 프로세스를 종료합니다.`
+          : `⚠️ ${MAX_FAILURES} consecutive failures. Exiting.`);
+        process.exit(1);
+      }
     }
     setTimeout(loop, intervalMs);
   }
