@@ -1,4 +1,4 @@
-Stop the Slack monitoring daemon.
+Stop the Slack mention monitoring cron job.
 
 ## Language & Tone
 
@@ -7,20 +7,18 @@ Use the `language` value (`ko` or `en`) for all user-facing output below.
 
 ## Behavior
 
-1. Read PID from `~/.claude/slack-monitoring/monitor.pid` using the Bash tool:
-```bash
-cat ~/.claude/slack-monitoring/monitor.pid 2>/dev/null
-```
+1. Check for active monitoring:
+   - Call `CronList` to find cron jobs with prompt containing "/slack-monitoring:once"
+   - Also read `cron_job_id` from `~/.claude/slack-monitoring/config.json` as fallback
 
-2. If PID not found:
-- ko: "ℹ️ 실행 중인 모니터링이 없습니다."
-- en: "ℹ️ No monitoring process is running."
+2. If no cron job found:
+   - ko: "ℹ️ 실행 중인 모니터링이 없습니다."
+   - en: "ℹ️ No monitoring is running."
 
-3. If PID found, stop the process:
-```bash
-kill <PID> 2>/dev/null && rm -f ~/.claude/slack-monitoring/monitor.pid
-```
+3. If cron job found, stop it:
+   - Call `CronDelete` with the job ID
+   - Remove `cron_job_id` field from `~/.claude/slack-monitoring/config.json`
 
 4. Confirm:
-- ko: "⏹️ 모니터링이 중지됐습니다."
-- en: "⏹️ Monitoring stopped."
+   - ko: "⏹️ 모니터링이 중지됐습니다."
+   - en: "⏹️ Monitoring stopped."

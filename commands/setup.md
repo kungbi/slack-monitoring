@@ -111,6 +111,8 @@ Options (both languages):
 
 If option 7: AskUserQuestion "Enter interval (e.g.: 3m, 45m, 2h)"
 
+> Note: This interval is used as the default cron schedule when `/slack-monitoring:start` is called without an explicit interval argument.
+
 ---
 
 ## Step 6. Summary style

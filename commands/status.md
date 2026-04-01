@@ -10,12 +10,17 @@ Use the `language` value (`ko` or `en`) for all user-facing output below.
 1. Read `~/.claude/slack-monitoring/config.json`
    - If not found, show "Not configured" and suggest running `/slack-monitoring:setup`
 
-2. Read `~/.claude/slack-monitoring/YYYY-MM-DD.json` (today's date)
+2. Check monitoring status:
+   - Call `CronList` to check for active cron jobs with prompt containing "/slack-monitoring:once"
+   - If found: monitoring is active, note the cron schedule
+   - If not found: monitoring is not running
+
+3. Read `~/.claude/slack-monitoring/YYYY-MM-DD.json` (today's date)
    - If not found, treat as no data yet (0 mentions today)
 
-3. Count threads by status: `pending`, `auto_completed`, `completed`
+4. Count threads by status: `pending`, `auto_completed`, `completed`
 
-4. Display status output:
+5. Display status output:
 
 **If language = ko:**
 ```
@@ -28,6 +33,7 @@ Use the `language` value (`ko` or `en`) for all user-facing output below.
 - 요약 스타일: detailed
 - 요약 모델: haiku
 - 모니터링 그룹: @dev_timespread, @backend_timespread (2개)
+📡 모니터링: 🟢 실행 중 (간격: {interval}) / ⚫ 중지됨
 
 📊 오늘 멘션 (YYYY-MM-DD)
 - 전체: N건
@@ -50,6 +56,7 @@ Use the `language` value (`ko` or `en`) for all user-facing output below.
 - Summary style: detailed
 - Summary model: haiku
 - Monitored groups: @dev_timespread, @backend_timespread (2)
+📡 Monitoring: 🟢 Running (interval: {interval}) / ⚫ Stopped
 
 📊 Today's Mentions (YYYY-MM-DD)
 - Total: N
@@ -61,7 +68,7 @@ Use the `language` value (`ko` or `en`) for all user-facing output below.
 💡 Check pending: /slack-monitoring:list
 ```
 
-5. If config not found:
+6. If config not found:
 
 **If language = ko (or unknown):**
 ```

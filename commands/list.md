@@ -43,6 +43,41 @@ Use the `tone` value to style suggested replies.
 💡 Complete all: /slack-monitoring:complete all
 ```
 
-4. If no pending threads:
+4. After the pending table, filter threads with `auto_completed` or `completed` status where the completion date is today. If any exist, append a collapsed section:
+
+**If language = ko:**
+```
+<details>
+<summary>✅ 자동완료 (N건)</summary>
+
+| ID | 채널 | 보낸 사람 | 사유 | 링크 |
+|----|------|----------|------|------|
+| #3 | #general | 이준혁 | 다른 사람이 답변함 | [열기](permalink) |
+| #4 | #random | 박서연 | 응답 불필요 | [열기](permalink) |
+
+</details>
+```
+
+**If language = en:**
+```
+<details>
+<summary>✅ Auto-completed (N)</summary>
+
+| ID | Channel | From | Reason | Link |
+|----|---------|------|--------|------|
+| #3 | #general | 이준혁 | Resolved by others | [Open](permalink) |
+| #4 | #random | 박서연 | No action needed | [Open](permalink) |
+
+</details>
+```
+
+Map `completion_reason` values for the Reason column:
+- `user_replied` → "이미 답장함" (ko) / "Already replied" (en)
+- `resolved_by_others` → "다른 사람이 답변함" (ko) / "Resolved by others" (en)
+- `no_action_needed` → "응답 불필요" (ko) / "No action needed" (en)
+
+If no auto-completed threads today, omit this section entirely.
+
+5. If no pending threads:
 
 Display: "✅ 미답변 멘션이 없습니다!" (ko) / "✅ No pending mentions!" (en)
