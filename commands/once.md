@@ -35,7 +35,12 @@ For each `pending` thread, analyze the `thread_text` field to determine if the u
 - If the mention is informational (e.g., "FYI @user", "cc @user", sharing a link, announcement) → `no_action_needed`
 - If the mention is a thank-you or acknowledgment (e.g., "thanks @user", "got it @user") → `no_action_needed`
 - If the thread has continued and the conversation clearly moved past needing the user's input → `resolved_by_others`
-- **When in doubt, keep as `pending`** — false negatives (missing something important) are worse than false positives
+- If the user is mentioned alongside 2+ other people (cc-style) and the question/request is not uniquely directed at the user → `no_action_needed`
+- If the mention is via a group/subteam mention (e.g., `<!subteam^...>`) rather than a direct `<@USER_ID>` mention → `no_action_needed`
+- If it is a deployment approval request (배포 승인, 테섭 배포, 상용 배포) where the user is one of multiple approvers → `no_action_needed`
+- If it is a personal action item (e.g., token issuance, signing a document) that doesn't require a Slack reply — the user can act on it without responding in the thread → `no_action_needed`
+- If it is a daily standup / work report thread → `no_action_needed`
+- **When in doubt, lean toward `no_action_needed`** — the user prefers fewer interruptions and will handle important matters directly in Slack
 
 For threads that should be auto-completed:
 1. Update the thread's `status` to `auto_completed`
@@ -67,6 +72,21 @@ Where `<reason>` is a brief human-readable explanation based on completion_reaso
 - `resolved_by_others`: "다른 사람이 답변함" (ko) / "Resolved by others" (en)
 - `no_action_needed`: "응답 불필요" (ko) / "No action needed" (en)
 
+### Step 4: Codebase lookup for suggested replies
+
+Before generating suggested replies, check if `codebase_paths` is set in config.
+
+For each remaining `pending` thread, determine if the thread contains a **technical question** that could be answered by looking at the code (e.g., asking about logic, behavior, implementation, DB schema, API, specific function/table names).
+
+If yes:
+1. Extract 2-5 **search keywords** from the thread (function names, table names, class names, feature keywords)
+2. Use the **Grep tool** to search across all paths in `codebase_paths`:
+   - Search each keyword in relevant file types (`*.py`, `*.ts`, `*.js`, `*.java`, etc.)
+   - Limit to top 5 most relevant results per keyword
+3. Include the found code snippets in the suggested reply context
+
+If no technical question is detected, skip codebase lookup for that thread.
+
 **Summary model**: Read `model` from config (default: `haiku`).
-- If `haiku` or `sonnet`: use the **Agent tool** with `model` parameter set to the configured value. Pass thread data, `language`, `tone`, and `summary_style` to the subagent for summarization.
+- If `haiku` or `sonnet`: use the **Agent tool** with `model` parameter set to the configured value. Pass thread data, `language`, `tone`, `summary_style`, and any codebase findings to the subagent for summarization.
 - If `session`: generate the summary directly in the current session (no subagent).
