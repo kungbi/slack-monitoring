@@ -126,10 +126,19 @@ async function searchMentions(token, userId, groupMentions = []) {
   return results;
 }
 
-async function getThread(token, channelId, threadTs) {
+function getRootTs(threadTs, permalink) {
+  try {
+    const ts = new URL(permalink).searchParams.get('thread_ts');
+    if (ts) return ts;
+  } catch {}
+  return threadTs;
+}
+
+async function getThread(token, channelId, threadTs, permalink) {
+  const rootTs = getRootTs(threadTs, permalink || '');
   const data = await slackApi(token, 'conversations.replies', {
     channel: channelId,
-    ts: threadTs,
+    ts: rootTs,
   });
   return data.ok ? (data.messages || []) : [];
 }
@@ -144,10 +153,17 @@ function extractThreadText(messages) {
     .join('\n');
 }
 
+async function getUserRealName(token, userId) {
+  if (!userId || userId === 'USLACKBOT') return null;
+  const data = await slackApi(token, 'users.info', { user: userId }, 0);
+  if (!data.ok) return null;
+  return data.user?.profile?.real_name || data.user?.real_name || null;
+}
+
 // --- Thread processing ---
 
 async function updateExistingThread(config, existing, channelId, threadTs) {
-  const messages = await getThread(config.slack_token, channelId, threadTs);
+  const messages = await getThread(config.slack_token, channelId, threadTs, existing.permalink);
   if (hasMyReply(messages, config.user_id)) {
     existing.status = 'auto_completed';
     existing.completed_at = new Date().toISOString();
@@ -157,15 +173,15 @@ async function updateExistingThread(config, existing, channelId, threadTs) {
   return false;
 }
 
-function buildThread(mention, messages, config, nextId) {
+async function buildThread(mention, messages, config, nextId) {
   const threadTs = mention.previous?.thread_ts || mention.ts;
   const channelId = mention.channel?.id || mention.channel;
   const channelName = mention.channel?.name || mention.channel;
   const isSlackbot = mention.user === 'USLACKBOT';
   const alreadyReplied = hasMyReply(messages, config.user_id);
   const status = (alreadyReplied || isSlackbot) ? 'auto_completed' : 'pending';
-
   const completionReason = alreadyReplied ? 'user_replied' : isSlackbot ? 'no_action_needed' : null;
+  const fromName = await getUserRealName(config.slack_token, mention.user);
 
   return {
     id: nextId,
@@ -174,6 +190,7 @@ function buildThread(mention, messages, config, nextId) {
     thread_ts: threadTs,
     message_ts: mention.ts,
     from: mention.username || mention.user,
+    from_name: fromName,
     from_id: mention.user,
     thread_text: extractThreadText(messages),
     permalink: mention.permalink,
@@ -187,7 +204,7 @@ function buildThread(mention, messages, config, nextId) {
 async function check(config) {
   const dateStr = new Date().toISOString().split('T')[0];
   const today = loadDateData(dateStr);
-  const existingTs = new Set(today.threads.map(t => t.message_ts));
+  const existingThreadKey = new Set(today.threads.map(t => `${t.channel_id}:${t.thread_ts}`));
 
   const mentions = await searchMentions(config.slack_token, config.user_id, config.group_mentions);
   const filtered = mentions.filter(m => m.user !== config.user_id && !m.bot_id);
@@ -198,20 +215,24 @@ async function check(config) {
   for (const mention of filtered) {
     const threadTs = mention.previous?.thread_ts || mention.ts;
     const channelId = mention.channel?.id || mention.channel;
+    const threadKey = `${channelId}:${threadTs}`;
 
-    if (existingTs.has(mention.ts)) {
-      const existing = today.threads.find(t => t.message_ts === mention.ts);
+    if (existingThreadKey.has(threadKey)) {
+      const existing = today.threads.find(t => t.channel_id === channelId && t.thread_ts === threadTs);
       if (existing?.status === 'pending') {
+        const messages = await getThread(config.slack_token, channelId, threadTs, existing.permalink);
+        existing.thread_text = extractThreadText(messages);
         const completed = await updateExistingThread(config, existing, channelId, threadTs);
         if (completed) autoCompleted.push(existing);
       }
       continue;
     }
 
-    const messages = await getThread(config.slack_token, channelId, threadTs);
-    const thread = buildThread(mention, messages, config, today.threads.length + 1);
+    const messages = await getThread(config.slack_token, channelId, threadTs, mention.permalink);
+    const thread = await buildThread(mention, messages, config, today.threads.length + 1);
 
     today.threads.push(thread);
+    existingThreadKey.add(threadKey);
     if (thread.status === 'pending') newPending.push(thread);
     else autoCompleted.push(thread);
   }
@@ -243,7 +264,8 @@ function printSummary(newPending, autoCompleted, config) {
     console.log(`#${ch}`);
     for (const m of items) {
       const snippet = (m.thread_text || '').split('\n')[0].slice(0, 60);
-      console.log(`- [#${m.id}] @${m.from}: ${snippet}... (${m.permalink})`);
+      const displayName = m.from_name ? `${m.from} (${m.from_name})` : m.from;
+      console.log(`- [#${m.id}] @${displayName}: ${snippet}... (${m.permalink})`);
     }
     console.log('');
   }
@@ -258,10 +280,38 @@ function printSummary(newPending, autoCompleted, config) {
 
 // --- Entry ---
 
+function parseInterval(str) {
+  if (!str) return null;
+  const match = str.match(/^(\d+)(m|h|s)?$/i);
+  if (!match) return null;
+  const num = parseInt(match[1], 10);
+  const unit = (match[2] || 'm').toLowerCase();
+  if (unit === 'h') return num * 3600000;
+  if (unit === 's') return num * 1000;
+  return num * 60000;
+}
+
 async function main() {
   const config = loadConfig();
   fs.mkdirSync(DATA_DIR, { recursive: true });
+
+  const intervalArg = process.argv[2];
+  const intervalMs = parseInterval(intervalArg) || parseInterval(config.default_interval) || 15 * 60000;
+
+  // Save PID for daemon management
+  const pidFile = path.join(DATA_DIR, 'monitor.pid');
+  fs.writeFileSync(pidFile, String(process.pid));
+
+  const cleanup = () => {
+    try { fs.unlinkSync(pidFile); } catch {}
+    process.exit(0);
+  };
+  process.on('SIGTERM', cleanup);
+  process.on('SIGINT', cleanup);
+
+  // Run immediately, then loop
   await check(config);
+  setInterval(() => check(config).catch(e => console.error('Check error:', e.message)), intervalMs);
 }
 
 main().catch(e => {
